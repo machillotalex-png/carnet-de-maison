@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carnet de maison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EEF1EC;
+    --surface: #FFFFFF;
+    --surface-2: #F5F6F1;
+    --ink: #22303B;
+    --ink-soft: #64747A;
+    --accent: #B9812C;
+    --accent-ink: #6B4C17;
+    --accent-2: #3B6E8F;
+    --line: #DBDFD5;
+    --danger: #A8452F;
+    --radius: 10px;
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'Work Sans', system-ui, -apple-system, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #191E23;
+      --surface: #232A31;
+      --surface-2: #1F252B;
+      --ink: #EAEDE8;
+      --ink-soft: #9AA7A9;
+      --accent: #D9A24E;
+      --accent-ink: #F3D9A6;
+      --accent-2: #7FB0CE;
+      --line: #354049;
+      --danger: #DC8A76;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #191E23;
+    --surface: #232A31;
+    --surface-2: #1F252B;
+    --ink: #EAEDE8;
+    --ink-soft: #9AA7A9;
+    --accent: #D9A24E;
+    --accent-ink: #F3D9A6;
+    --accent-2: #7FB0CE;
+    --line: #354049;
+    --danger: #DC8A76;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  header.top { margin-bottom: 22px; }
+  header.top .eyebrow { color: var(--ink-soft); font-size: 0.92rem; text-transform: capitalize; }
+  header.top h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.7rem, 5vw, 2.3rem);
+    margin: 2px 0 4px;
+    letter-spacing: -0.01em;
+  }
+  .today-strip {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: 14px;
+  }
+  .pill {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 100px; padding: 6px 14px; font-size: 0.85rem; color: var(--ink-soft);
+  }
+  .pill strong { color: var(--ink); font-weight: 600; }
+  .auth-area {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+    margin-top: 10px; font-size: 0.85rem;
+  }
+  .auth-status { color: var(--ink-soft); }
+  .auth-btn {
+    background: var(--accent-2); color: #fff; border: none; border-radius: 100px;
+    padding: 6px 14px; font-size: 0.83rem; font-weight: 500; cursor: pointer;
+  }
+  .auth-btn.ghost {
+    background: none; border: 1px solid var(--line); color: var(--ink-soft);
+  }
+  .sync-note { font-size: 0.8rem; color: var(--ink-soft); margin: -6px 0 14px; }
+  .semaine-repas-row {
+    display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline;
+    padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 0.9rem;
+  }
+  .semaine-repas-row strong { min-width: 90px; }
+  .semaine-repas-row span { color: var(--ink-soft); }
+  .recur-tag { color: var(--accent-2); font-weight: 700; }
+  .assignee-badge {
+    display: inline-block; background: var(--surface-2); border: 1px solid var(--line);
+    border-radius: 100px; padding: 1px 9px; font-size: 0.72rem; color: var(--ink-soft); vertical-align: middle;
+  }
+  .recur-check {
+    display: flex; align-items: center; gap: 6px; font-size: 0.88rem; color: var(--ink-soft);
+    padding: 0 4px;
+  }
+  .recur-check input { width: 16px; height: 16px; accent-color: var(--accent-2); }
+  .btn-secondary {
+    background: var(--surface-2); border: 1px solid var(--line); color: var(--ink);
+    padding: 8px 14px; border-radius: 7px; cursor: pointer; font-size: 0.88rem;
+  }
+  .repas-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .budget-total { font-size: 1rem; margin-bottom: 10px; }
+  .budget-breakdown { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+  .budget-cat-pill {
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 100px;
+    padding: 4px 12px; font-size: 0.8rem; color: var(--ink-soft);
+  }
+  .budget-amount { font-weight: 600; white-space: nowrap; padding-right: 6px; }
+  .budget-cat-pill.over-budget { border-color: var(--danger); color: var(--danger); }
+  .plafonds-panel { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .plafond-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .plafond-row label { font-size: 0.88rem; color: var(--ink-soft); }
+  .plafond-row input {
+    width: 110px; font-family: var(--font-body); font-size: 0.88rem; padding: 6px 9px;
+    border-radius: 7px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink);
+  }
+  .enfant-card {
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 14px;
+  }
+  .enfant-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; gap: 10px; }
+  .enfant-header-left { display: flex; align-items: center; gap: 12px; }
+  .enfant-avatar {
+    width: 52px; height: 52px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+    background: var(--surface-2);
+  }
+  .enfant-avatar-fallback {
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-size: 1.3rem; color: var(--ink-soft); font-weight: 600;
+    border: 1px solid var(--line);
+  }
+  .photo-label {
+    position: relative; display: inline-block; font-size: 0.76rem; color: var(--accent-2);
+    cursor: pointer; text-decoration: underline;
+  }
+  .photo-label .photo-input {
+    position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer;
+  }
+  .photo-remove {
+    background: none; border: none; color: var(--ink-soft); font-size: 0.76rem;
+    text-decoration: underline; cursor: pointer; padding: 0; margin-left: 4px;
+  }
+  .enfant-card-header h3 { font-family: var(--font-display); font-size: 1.05rem; margin: 0; font-weight: 600; }
+  .enfant-age { font-family: var(--font-body); font-weight: 400; color: var(--ink-soft); font-size: 0.85rem; }
+  .enfant-field-row { margin: 10px 0; }
+  .enfant-field-label { display: block; font-size: 0.72rem; color: var(--ink-soft); margin-bottom: 3px; }
+  .enfant-field-row input[type="date"] {
+    font-family: var(--font-body); font-size: 0.88rem; padding: 7px 9px; border-radius: 7px;
+    border: 1px solid var(--line); background: var(--surface-2); color: var(--ink);
+  }
+  .enfant-field-row textarea {
+    width: 100%; min-height: 44px; resize: vertical; font-family: var(--font-body); font-size: 0.88rem;
+    padding: 7px 9px; border-radius: 7px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink);
+  }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin: -6px 0 16px; }
+  .chip {
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 100px;
+    padding: 5px 12px; font-size: 0.8rem; color: var(--ink-soft); cursor: pointer;
+  }
+  .chip:hover { color: var(--ink); border-color: var(--accent-2); }
+  .idea-chip { cursor: default; }
+  .idea-chip:hover { color: var(--ink-soft); border-color: var(--line); }
+  .ideas-block { margin-top: 18px; }
+  .ideas-panel { margin-top: 14px; }
+  @media print {
+    .no-print, nav.tabs, header.top, .auth-area, .repas-actions, .add-form, .icon-btn, .fab, .quickadd-sheet, .quickadd-backdrop { display: none !important; }
+    main.panel { border: none; padding: 0; }
+    body { background: #fff; }
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 28px 18px calc(96px + env(safe-area-inset-bottom)); }
+  nav.tabs {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    display: flex; overflow-x: auto; justify-content: center;
+    background: var(--surface); border-top: 1px solid var(--line);
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+  }
+  nav.tabs button {
+    font-family: var(--font-body);
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 0.68rem; font-weight: 500;
+    background: none; border: none; cursor: pointer;
+    color: var(--ink-soft);
+    padding: 6px 12px;
+    white-space: nowrap; flex: 0 0 auto;
+  }
+  nav.tabs button .tab-icon { font-size: 1.15rem; line-height: 1; }
+  nav.tabs button.active { color: var(--accent); }
+  .fab {
+    position: fixed; right: 20px; bottom: calc(78px + env(safe-area-inset-bottom));
+    width: 56px; height: 56px; border-radius: 50%; z-index: 55;
+    background: var(--accent); color: #fff; border: none; cursor: pointer;
+    font-size: 1.9rem; line-height: 1; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  }
+  .quickadd-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 52;
+  }
+  .quickadd-sheet {
+    position: fixed; right: 20px; bottom: calc(140px + env(safe-area-inset-bottom));
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25); z-index: 55; padding: 8px; min-width: 210px;
+  }
+  .quickadd-title { font-size: 0.75rem; color: var(--ink-soft); padding: 6px 10px 4px; }
+  .quickadd-item {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    background: none; border: none; text-align: left; cursor: pointer;
+    padding: 9px 10px; border-radius: 8px; font-size: 0.9rem; color: var(--ink);
+    font-family: var(--font-body);
+  }
+  .quickadd-item:hover { background: var(--surface-2); }
+  .more-sheet {
+    position: fixed; left: 0; right: 0; bottom: calc(64px + env(safe-area-inset-bottom));
+    background: var(--surface); border-top: 1px solid var(--line);
+    box-shadow: 0 -8px 24px rgba(0,0,0,0.18); z-index: 55;
+    padding: 10px; display: flex; flex-wrap: wrap; gap: 6px;
+    max-width: 760px; margin: 0 auto; left: 50%; transform: translateX(-50%); width: 100%;
+  }
+  .more-item {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 100px;
+    padding: 9px 16px; font-size: 0.88rem; color: var(--ink); cursor: pointer;
+    font-family: var(--font-body); flex: 1 1 auto; justify-content: center;
+  }
+  .more-item.active { border-color: var(--accent); color: var(--accent); }
+  main.panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px 20px 26px;
+  }
+  h2.section-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin: 0 0 14px;
+  }
+  form.add-form {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 18px;
+    border-bottom: 1px dashed var(--line);
+  }
+  form.add-form input[type="text"],
+  form.add-form input[type="date"],
+  form.add-form input[type="time"],
+  form.add-form select {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: 9px 11px;
+    border-radius: 7px;
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+    color: var(--ink);
+  }
+  form.add-form input[type="text"] { flex: 1 1 180px; }
+  form.add-form .btn-add {
+    background: var(--accent); color: #fff; border: none;
+    padding: 9px 16px; border-radius: 7px; font-weight: 600; font-size: 0.95rem;
+    cursor: pointer;
+  }
+  form.add-form .btn-add:hover { filter: brightness(0.95); }
+  ul.item-list { list-style: none; margin: 0; padding: 0; }
+  ul.item-list li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  ul.item-list li:last-child { border-bottom: none; }
+  .item-main { flex: 1; min-width: 0; }
+  .item-title { font-weight: 500; }
+  .item-meta { color: var(--ink-soft); font-size: 0.85rem; margin-top: 2px; }
+  .item-past .item-title, .item-past .item-meta { color: var(--ink-soft); }
+  .item-done .item-title { text-decoration: line-through; color: var(--ink-soft); }
+  button.icon-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--ink-soft); font-size: 1.1rem; line-height: 1;
+    padding: 4px 6px; border-radius: 6px;
+  }
+  button.icon-btn:hover { color: var(--danger); background: var(--surface-2); }
+  input[type="checkbox"] {
+    width: 19px; height: 19px; margin-top: 1px; accent-color: var(--accent-2);
+    flex-shrink: 0;
+  }
+  .empty-state { color: var(--ink-soft); font-size: 0.95rem; padding: 10px 0; }
+  .group-label {
+    font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--accent-ink); font-weight: 600; margin: 18px 0 6px;
+  }
+  .group-label:first-child { margin-top: 0; }
+  .week-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .week-nav .label { font-weight: 600; }
+  .week-nav button {
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 7px;
+    padding: 6px 12px; cursor: pointer; color: var(--ink); font-size: 0.95rem;
+  }
+  .week-grid { display: flex; flex-direction: column; gap: 10px; }
+  .day-row {
+    display: grid; grid-template-columns: 90px 1fr 1fr; gap: 10px;
+    align-items: start;
+  }
+  .day-row .day-label { font-weight: 600; padding-top: 9px; font-size: 0.92rem; }
+  .day-row .day-label .date-sub { display: block; font-weight: 400; color: var(--ink-soft); font-size: 0.78rem; }
+  .day-row textarea {
+    width: 100%; resize: vertical; min-height: 40px;
+    font-family: var(--font-body); font-size: 0.9rem;
+    padding: 8px 10px; border-radius: 7px; border: 1px solid var(--line);
+    background: var(--surface-2); color: var(--ink);
+  }
+  .meal-label { font-size: 0.72rem; color: var(--ink-soft); margin-bottom: 3px; display: block; }
+  .today-marker .day-label { color: var(--accent-ink); }
+  .clear-btn-row { margin-top: 16px; text-align: right; }
+  .clear-btn-row button {
+    background: none; border: 1px solid var(--line); color: var(--ink-soft);
+    padding: 7px 13px; border-radius: 7px; cursor: pointer; font-size: 0.85rem;
+  }
+  .clear-btn-row button:hover { color: var(--danger); border-color: var(--danger); }
+  .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .cal-header .label { font-weight: 600; text-transform: capitalize; }
+  .cal-header button {
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 7px;
+    padding: 6px 12px; cursor: pointer; color: var(--ink); font-size: 0.95rem;
+  }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 6px; }
+  .cal-dow { text-align: center; font-size: 0.7rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.03em; padding-bottom: 4px; }
+  .cal-day {
+    position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+    border-radius: 7px; cursor: pointer; font-size: 0.86rem; background: var(--surface-2);
+    border: 1px solid transparent;
+  }
+  .cal-day.cal-outside { color: var(--ink-soft); opacity: 0.4; }
+  .cal-day.cal-today { border-color: var(--accent-2); font-weight: 600; }
+  .cal-day.cal-selected { background: var(--accent); color: #fff; }
+  .cal-day.has-rdv::after {
+    content: ""; position: absolute; bottom: 5px; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--accent-2);
+  }
+  .cal-day.cal-selected.has-rdv::after { background: #fff; }
+  .cal-filter-note {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 16px 0 12px; font-size: 0.88rem; color: var(--ink-soft);
+  }
+  .cal-filter-note button {
+    background: none; border: none; color: var(--accent-2); cursor: pointer;
+    font-size: 0.85rem; text-decoration: underline; padding: 0;
+  }
+  @media (max-width: 480px) {
+    .day-row { grid-template-columns: 1fr; }
+    .day-row .day-label { padding-top: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script id="state-data" type="application/json">{"rdvs":[],"repas":{},"courses":[],"taches":[],"notes":[],"depenses":[],"enfants":[],"coursesHistorique":[]}</script>
+<script>
+(function () {
+  "use strict";
+
+  var HEAD_HTML = document.head.outerHTML;
+  var SCRIPT_EL_HTML = document.currentScript.outerHTML;
+
+  var DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+  var CATEGORIES = ["Frais & crémerie", "Fruits & légumes", "Épicerie", "Maison & hygiène", "Autre"];
+  var BUDGET_CATEGORIES = ["Courses", "Factures", "Loisirs", "Transport", "Santé", "Autre"];
+  var MEAL_IDEAS = [
+    ["Viandes & volailles", ["Poulet rôti", "Blanquette de veau", "Poulet basquaise", "Bœuf bourguignon", "Steak-frites", "Hachis parmentier", "Sauté de porc à l'ananas", "Poulet au curry", "Escalopes de dinde à la crème", "Rôti de porc aux pommes", "Chili con carne", "Saucisses-lentilles", "Tajine d'agneau", "Côtes de porc à la moutarde", "Poulet chasseur", "Bœuf carottes", "Osso-buco", "Cassoulet", "Émincé de poulet à la crème", "Filet mignon aux champignons", "Poulet rôti aux herbes", "Escalope milanaise", "Rôti de bœuf", "Poulet au citron"]],
+    ["Poissons & fruits de mer", ["Cabillaud vapeur", "Saumon à l'unilatérale", "Moules marinières", "Papillote de poisson blanc", "Brandade de morue", "Gratin de poisson", "Poêlée de crevettes à l'ail", "Truite aux amandes", "Filet de dorade", "Paella", "Soupe de poisson", "Pavé de saumon teriyaki", "Fish and chips maison", "Thon poêlé sésame", "Cabillaud à la provençale", "Gambas grillées", "Colin meunière", "Tartare de saumon"]],
+    ["Végétarien", ["Curry de légumes", "Ratatouille", "Gratin de légumes", "Chili sin carne", "Dahl de lentilles corail", "Galettes de pois chiches", "Tarte aux légumes", "Risotto aux champignons", "Poêlée de quinoa aux légumes", "Œufs cocotte", "Omelette aux fines herbes", "Wok de légumes au tofu", "Falafels maison", "Soupe de potiron", "Gratin dauphinois", "Quiche aux poireaux", "Moussaka végétarienne", "Curry de pois chiches"]],
+    ["Pâtes, riz & céréales", ["Spaghetti bolognaise", "Lasagnes", "Carbonara", "Pâtes au pesto", "Gratin de pâtes au thon", "Riz cantonais", "Risotto aux champignons", "Couscous royal", "Nouilles sautées au poulet", "Taboulé", "Orzo aux légumes", "Riz pilaf", "Semoule aux légumes", "Pâtes à la puttanesca", "Gnocchis à la crème"]],
+    ["Soupes & plats d'hiver", ["Soupe à l'oignon", "Velouté de courgettes", "Potage de légumes", "Soupe de potiron", "Pot-au-feu", "Petit salé aux lentilles", "Tartiflette", "Raclette", "Fondue savoyarde", "Garbure", "Soupe de poireaux-pommes de terre", "Choucroute garnie"]],
+    ["Été & salades", ["Salade César", "Salade niçoise", "Taboulé", "Salade de pâtes", "Gaspacho", "Salade grecque", "Salade de riz", "Wrap au poulet", "Pan bagnat", "Salade de lentilles", "Salade de tomates mozzarella", "Salade de quinoa aux légumes"]],
+    ["Rapide / dépannage", ["Omelette", "Croque-monsieur", "Pâtes au beurre", "Quiche express", "Œufs au plat", "Sandwich club", "Pizza maison", "Wraps", "Toast avocat-œuf", "Crêpes salées", "Soupe + fromage", "Salade composée"]],
+    ["Spécial enfants", ["Nuggets maison", "Purée-saucisse", "Pâtes au fromage", "Steak haché-frites", "Coquillettes jambon", "Gratin de pâtes", "Wraps au poulet", "Cordon bleu maison", "Hachis parmentier", "Pizza maison", "Omelette-frites"]],
+    ["Plats du monde", ["Curry thaï", "Poke bowl", "Tacos", "Couscous", "Tajine", "Sushi maison", "Pad thaï", "Bibimbap", "Fajitas", "Burritos", "Ramen maison", "Chana masala"]],
+    ["Grillades & barbecue", ["Brochettes de poulet", "Merguez", "Côtelettes d'agneau grillées", "Épis de maïs grillés", "Légumes grillés", "Burgers maison", "Travers de porc grillés", "Brochettes de bœuf"]]
+  ];
+
+  // --- Configuration Google (à remplir après création des identifiants dans Google Cloud Console) ---
+  var GOOGLE_CLIENT_ID = "620535370202-82plnref2jtnfltpp8qb07mmn33spg7k.apps.googleusercontent.com";
+  var GOOGLE_API_KEY = "AIzaSyBHJIzK8iyFtfdyZzG_U6GbmL5FBrar_IA";
+  var DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events";
+  var DRIVE_FILE_NAME = "carnet-maison-data.json";
+
+  var google_ = { tokenClient: null, accessToken: null, pickerLoaded: false, silentAttempted: false };
+  var ui = {
+    tab: "semaine", weekOffset: 0, calMonthOffset: 0, selectedDate: null, budgetMonthOffset: 0,
+    quickAddOpen: false, focusAddForm: false, moreMenuOpen: false, searchQuery: "", ideasOpen: false, plafondsOpen: false, weather: null,
+    googleAvailable: false, signedIn: false, driveFileId: null, driveStatus: ""
+  };
+  try { ui.driveFileId = localStorage.getItem("carnet-maison-drive-file-id") || null; } catch (e) {}
+
+  var state = JSON.parse(document.getElementById("state-data").textContent);
+  if (!state.rdvs) state.rdvs = [];
+  if (!state.repas) state.repas = {};
+  if (!state.courses) state.courses = [];
+  if (!state.taches) state.taches = [];
+  if (!state.notes) state.notes = [];
+  if (!state.depenses) state.depenses = [];
+  if (!state.enfants) state.enfants = [];
+  if (!state.coursesHistorique) state.coursesHistorique = [];
+  if (!state.contacts) state.contacts = [];
+  if (!state.budgetPlafonds) state.budgetPlafonds = {};
+
+  function pad(n) { return n < 10 ? "0" + n : "" + n; }
+  function isoDate(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function todayISO() { return isoDate(new Date()); }
+  function newId() { return "id" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+  function addCourseItem(texte, categorie, assignee) {
+    texte = texte.trim();
+    if (!texte) return;
+    var lower = texte.toLowerCase();
+    var alreadyActive = state.courses.some(function (c) { return !c.achete && c.texte.toLowerCase() === lower; });
+    if (!alreadyActive) {
+      state.courses.push({ id: newId(), texte: texte, categorie: categorie || "Autre", achete: false, assignee: assignee || "" });
+    }
+    var hist = state.coursesHistorique.filter(function (h) { return h.texte.toLowerCase() === lower; })[0];
+    if (hist) { hist.count += 1; hist.categorie = categorie || hist.categorie; }
+    else state.coursesHistorique.push({ texte: texte, categorie: categorie || "Autre", count: 1 });
+  }
+  function escapeHtml(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function mondayOf(date) {
+    var d = new Date(date);
+    var day = (d.getDay() + 6) % 7;
+    d.setDate(d.getDate() - day);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+  function formatHuman(iso) {
+    var d = new Date(iso + "T00:00:00");
+    return d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+  }
+  function formatShort(iso) {
+    var d = new Date(iso + "T00:00:00");
+    return d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+  }
+  function buildMonthGrid(monthDate) {
+    var first = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+    var last = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+    var gridStart = mondayOf(first);
+    var gridEnd = mondayOf(last);
+    gridEnd.setDate(gridEnd.getDate() + 6);
+    var days = [];
+    var cur = new Date(gridStart);
+    while (cur <= gridEnd) { days.push(new Date(cur)); cur.setDate(cur.getDate() + 1); }
+    return days;
+  }
+
+  // ---------- Rendering ----------
+
+  function weatherEmoji(code) {
+    if (code === 0) return "☀️";
+    if (code >= 1 && code <= 3) return "⛅";
+    if (code === 45 || code === 48) return "🌫️";
+    if (code >= 51 && code <= 57) return "🌦️";
+    if (code >= 61 && code <= 67) return "🌧️";
+    if (code >= 71 && code <= 77) return "🌨️";
+    if (code >= 80 && code <= 82) return "🌧️";
+    if (code >= 85 && code <= 86) return "🌨️";
+    if (code >= 95) return "⛈️";
+    return "🌡️";
+  }
+
+  function renderTodayStrip() {
+    var t = todayISO();
+    var rdvToday = state.rdvs.filter(function (r) { return r.date === t; }).length;
+    var repasT = state.repas[t] || {};
+    var repasCount = (repasT.midi ? 1 : 0) + (repasT.soir ? 1 : 0);
+    var aAcheter = state.courses.filter(function (c) { return !c.achete; }).length;
+    var tachesRestantes = state.taches.filter(function (x) { return !x.fait; }).length;
+    return (
+      '<div class="today-strip">' +
+      (ui.weather ? '<span class="pill">' + weatherEmoji(ui.weather.code) + " " + ui.weather.temp + "°C</span>" : "") +
+      '<span class="pill"><strong>' + rdvToday + '</strong> rendez-vous aujourd\u2019hui</span>' +
+      '<span class="pill"><strong>' + repasCount + '/2</strong> repas prévus aujourd\u2019hui</span>' +
+      '<span class="pill"><strong>' + aAcheter + '</strong> article' + (aAcheter > 1 ? "s" : "") + ' à acheter</span>' +
+      '<span class="pill"><strong>' + tachesRestantes + '</strong> tâche' + (tachesRestantes > 1 ? "s" : "") + ' en attente</span>' +
+      '</div>'
+    );
+  }
+
+  var TABS = [
+    ["semaine", "🏠", "Accueil"],
+    ["rdv", "📅", "RDV"],
+    ["repas", "🍽️", "Repas"],
+    ["courses", "🛒", "Courses"]
+  ];
+  var MORE_TABS = [
+    ["taches", "✅", "Tâches"],
+    ["budget", "💶", "Budget"],
+    ["enfants", "🧒", "Enfants"],
+    ["contacts", "📇", "Contacts"],
+    ["notes", "📝", "Notes"],
+    ["recherche", "🔍", "Recherche"]
+  ];
+  var ASSIGNEES = ["Alexis", "Laura"];
+  var QUICK_ADD_ITEMS = [
+    ["rdv", "📅", "Rendez-vous"],
+    ["repas", "🍽️", "Repas"],
+    ["courses", "🛒", "Article de courses"],
+    ["taches", "✅", "Tâche"],
+    ["budget", "💶", "Dépense"],
+    ["notes", "📝", "Note"]
+  ];
+
+  function renderTabs() {
+    var moreActive = MORE_TABS.some(function (t) { return t[0] === ui.tab; });
+    return (
+      '<nav class="tabs">' +
+      TABS.map(function (t) {
+        return (
+          '<button data-action="set-tab" data-tab="' + t[0] + '" class="' + (ui.tab === t[0] ? "active" : "") + '">' +
+          '<span class="tab-icon">' + t[1] + "</span>" +
+          '<span class="tab-label">' + t[2] + "</span>" +
+          "</button>"
+        );
+      }).join("") +
+      '<button data-action="toggle-more" class="' + (moreActive || ui.moreMenuOpen ? "active" : "") + '">' +
+      '<span class="tab-icon">⋯</span>' +
+      '<span class="tab-label">Plus</span>' +
+      "</button>" +
+      "</nav>"
+    );
+  }
+
+  function renderMoreMenu() {
+    if (!ui.moreMenuOpen) return "";
+    return (
+      '<div class="quickadd-backdrop" data-action="close-more"></div>' +
+      '<div class="more-sheet">' +
+      MORE_TABS.map(function (t) {
+        return (
+          '<button data-action="set-tab" data-tab="' + t[0] + '" class="more-item ' + (ui.tab === t[0] ? "active" : "") + '">' +
+          '<span class="tab-icon">' + t[1] + "</span>" + t[2] +
+          "</button>"
+        );
+      }).join("") +
+      '<button data-action="export-data" class="more-item">' +
+      '<span class="tab-icon">💾</span>Exporter mes données' +
+      "</button>" +
+      "</div>"
+    );
+  }
+
+  function renderQuickAdd() {
+    var fab = '<button class="fab" data-action="toggle-quickadd" aria-label="Ajouter">' + (ui.quickAddOpen ? "×" : "+") + "</button>";
+    if (!ui.quickAddOpen) return fab;
+    var sheet =
+      '<div class="quickadd-backdrop" data-action="close-quickadd"></div>' +
+      '<div class="quickadd-sheet">' +
+      '<div class="quickadd-title">Ajouter…</div>' +
+      QUICK_ADD_ITEMS.map(function (q) {
+        return '<button class="quickadd-item" data-action="quickadd-goto" data-tab="' + q[0] + '"><span class="tab-icon">' + q[1] + "</span>" + q[2] + "</button>";
+      }).join("") +
+      "</div>";
+    return sheet + fab;
+  }
+
+  function renderCalendar() {
+    var base = new Date();
+    base = new Date(base.getFullYear(), base.getMonth() + ui.calMonthOffset, 1);
+    var monthLabel = base.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+    var grid = buildMonthGrid(base);
+    var t = todayISO();
+    var rdvByDate = {};
+    state.rdvs.forEach(function (r) { rdvByDate[r.date] = (rdvByDate[r.date] || 0) + 1; });
+    var dowRow = DAYS.map(function (d) { return '<div class="cal-dow">' + d.slice(0, 3) + "</div>"; }).join("");
+    var cells = grid.map(function (d) {
+      var iso = isoDate(d);
+      var outside = d.getMonth() !== base.getMonth();
+      var cls = ["cal-day"];
+      if (outside) cls.push("cal-outside");
+      if (iso === t) cls.push("cal-today");
+      if (iso === ui.selectedDate) cls.push("cal-selected");
+      if (rdvByDate[iso]) cls.push("has-rdv");
+      return '<div class="' + cls.join(" ") + '" data-action="cal-select" data-date="' + iso + '">' + d.getDate() + "</div>";
+    }).join("");
+    return (
+      '<div class="cal-header">' +
+      '<button data-action="cal-prev" aria-label="Mois précédent">‹</button>' +
+      '<span class="label">' + monthLabel + "</span>" +
+      '<button data-action="cal-next" aria-label="Mois suivant">›</button>' +
+      "</div>" +
+      '<div class="cal-grid">' + dowRow + cells + "</div>"
+    );
+  }
+
+  function renderSemaine() {
+    var t = todayISO();
+    var end = new Date(); end.setDate(end.getDate() + 6);
+    var endISO = isoDate(end);
+
+    var annivSoon = state.enfants
+      .filter(function (en) { return en.naissance; })
+      .map(function (en) { return { prenom: en.prenom, jours: daysUntilBirthday(en.naissance) }; })
+      .filter(function (a) { return a.jours !== null && a.jours <= 14; })
+      .sort(function (a, b) { return a.jours - b.jours; });
+    var annivHtml = annivSoon.length
+      ? '<div class="group-label">Anniversaires</div><ul class="item-list">' + annivSoon.map(function (a) {
+          var label = a.jours === 0 ? "C'est aujourd'hui !" : a.jours === 1 ? "Demain" : "Dans " + a.jours + " jours";
+          return '<li><div class="item-main"><div class="item-title">🎂 ' + escapeHtml(a.prenom) + '</div><div class="item-meta">' + label + "</div></div></li>";
+        }).join("") + "</ul>"
+      : "";
+
+    var rdvsAvenir = state.rdvs
+      .filter(function (r) { return r.date >= t && r.date <= endISO; })
+      .sort(function (a, b) { return (a.date + (a.heure || "")) < (b.date + (b.heure || "")) ? -1 : 1; });
+    var rdvHtml = rdvsAvenir.length
+      ? '<ul class="item-list">' + rdvsAvenir.map(function (r) {
+          return (
+            '<li><div class="item-main"><div class="item-title">' + escapeHtml(r.titre) + "</div>" +
+            '<div class="item-meta">' + formatShort(r.date) + (r.heure ? " · " + r.heure : "") + (r.lieu ? " · " + escapeHtml(r.lieu) : "") + "</div></div></li>"
+          );
+        }).join("") + "</ul>"
+      : '<div class="empty-state">Rien de prévu cette semaine.</div>';
+
+    var repasHtml = "";
+    for (var i = 0; i < 7; i++) {
+      var d = new Date(); d.setDate(d.getDate() + i);
+      var iso = isoDate(d);
+      var entry = state.repas[iso] || {};
+      if (!entry.midi && !entry.soir) continue;
+      repasHtml +=
+        '<div class="semaine-repas-row"><strong>' + (i === 0 ? "Aujourd'hui" : DAYS[(d.getDay() + 6) % 7]) + '</strong>' +
+        (entry.midi ? '<span>Midi : ' + escapeHtml(entry.midi) + "</span>" : "") +
+        (entry.soir ? '<span>Soir : ' + escapeHtml(entry.soir) + "</span>" : "") +
+        "</div>";
+    }
+    if (!repasHtml) repasHtml = '<div class="empty-state">Aucun repas prévu pour l\u2019instant.</div>';
+
+    var tachesOuvertes = state.taches.filter(function (x) { return !x.fait; });
+    var tachesHtml = tachesOuvertes.length
+      ? '<ul class="item-list">' + tachesOuvertes.map(function (x) {
+          return (
+            '<li><input type="checkbox" data-action="toggle-tache" data-id="' + x.id + '">' +
+            '<div class="item-main"><div class="item-title">' + (x.recurrente ? "↻ " : "") + escapeHtml(x.texte) + "</div></div></li>"
+          );
+        }).join("") + "</ul>"
+      : '<div class="empty-state">Aucune tâche en attente.</div>';
+
+    var aAcheter = state.courses.filter(function (c) { return !c.achete; });
+    var coursesHtml = aAcheter.length
+      ? '<ul class="item-list">' + aAcheter.slice(0, 8).map(function (c) {
+          return '<li><input type="checkbox" data-action="toggle-course" data-id="' + c.id + '"><div class="item-main"><div class="item-title">' + escapeHtml(c.texte) + "</div></div></li>";
+        }).join("") + "</ul>" + (aAcheter.length > 8 ? '<div class="empty-state">+ ' + (aAcheter.length - 8) + " autre(s), voir l'onglet Courses.</div>" : "")
+      : '<div class="empty-state">Liste de courses vide.</div>';
+
+    var weekAgoISO = isoDate(new Date(Date.now() - 6 * 86400000));
+    var recapCounts = {};
+    ASSIGNEES.forEach(function (a) { recapCounts[a] = 0; });
+    state.taches.forEach(function (x) {
+      if (x.fait && x.completedAt && x.completedAt >= weekAgoISO && x.assignee && recapCounts.hasOwnProperty(x.assignee)) {
+        recapCounts[x.assignee] += 1;
+      }
+    });
+    var recapHtml = ASSIGNEES.some(function (a) { return recapCounts[a] > 0; })
+      ? '<div class="recap-row">' + ASSIGNEES.map(function (a) {
+          return '<span class="pill">' + escapeHtml(a) + " · " + recapCounts[a] + " tâche" + (recapCounts[a] > 1 ? "s" : "") + "</span>";
+        }).join("") + "</div>"
+      : "";
+
+    return (
+      '<h2 class="section-title">Cette semaine</h2>' +
+      annivHtml +
+      '<div class="group-label">Rendez-vous</div>' + rdvHtml +
+      '<div class="group-label">Repas</div>' + repasHtml +
+      '<div class="group-label">Tâches</div>' + tachesHtml +
+      recapHtml +
+      '<div class="group-label">Courses à faire</div>' + coursesHtml
+    );
+  }
+
+  function renderRecherche() {
+    var q = ui.searchQuery.trim().toLowerCase();
+    var input = '<input type="text" id="search-input" placeholder="Chercher un rendez-vous, une note, un article…" autocomplete="off">';
+    if (!q) {
+      return '<h2 class="section-title">Recherche</h2>' + input + '<div class="empty-state">Tape pour chercher dans tout le carnet.</div>';
+    }
+
+    var sections = "";
+
+    var rdvHits = state.rdvs.filter(function (r) { return r.titre.toLowerCase().indexOf(q) > -1 || (r.lieu || "").toLowerCase().indexOf(q) > -1; });
+    if (rdvHits.length) {
+      sections += '<div class="group-label">Rendez-vous</div><ul class="item-list">' + rdvHits.map(function (r) {
+        return '<li><div class="item-main"><div class="item-title">' + escapeHtml(r.titre) + '</div><div class="item-meta">' + formatShort(r.date) + (r.heure ? " · " + r.heure : "") + "</div></div></li>";
+      }).join("") + "</ul>";
+    }
+
+    var courseHits = state.courses.filter(function (c) { return c.texte.toLowerCase().indexOf(q) > -1; });
+    if (courseHits.length) {
+      sections += '<div class="group-label">Courses</div><ul class="item-list">' + courseHits.map(function (c) {
+        return '<li><div class="item-main"><div class="item-title' + (c.achete ? " item-done" : "") + '">' + escapeHtml(c.texte) + "</div></div></li>";
+      }).join("") + "</ul>";
+    }
+
+    var tacheHits = state.taches.filter(function (x) { return x.texte.toLowerCase().indexOf(q) > -1; });
+    if (tacheHits.length) {
+      sections += '<div class="group-label">Tâches</div><ul class="item-list">' + tacheHits.map(function (x) {
+        return '<li><div class="item-main"><div class="item-title' + (x.fait ? " item-done" : "") + '">' + escapeHtml(x.texte) + "</div></div></li>";
+      }).join("") + "</ul>";
+    }
+
+    var noteHits = state.notes.filter(function (n) { return n.texte.toLowerCase().indexOf(q) > -1; });
+    if (noteHits.length) {
+      sections += '<div class="group-label">Notes</div><ul class="item-list">' + noteHits.map(function (n) {
+        return '<li><div class="item-main"><div class="item-title">' + escapeHtml(n.texte) + "</div></div></li>";
+      }).join("") + "</ul>";
+    }
+
+    var depenseHits = state.depenses.filter(function (d) { return d.libelle.toLowerCase().indexOf(q) > -1; });
+    if (depenseHits.length) {
+      sections += '<div class="group-label">Budget</div><ul class="item-list">' + depenseHits.map(function (d) {
+        return '<li><div class="item-main"><div class="item-title">' + escapeHtml(d.libelle) + '</div><div class="item-meta">' + formatShort(d.date) + "</div></div></li>";
+      }).join("") + "</ul>";
+    }
+
+    if (!sections) sections = '<div class="empty-state">Aucun résultat pour « ' + escapeHtml(ui.searchQuery) + " ».</div>";
+
+    return '<h2 class="section-title">Recherche</h2>' + input + sections;
+  }
+
+  function renderContacts() {
+    var list = state.contacts.slice().sort(function (a, b) { return a.nom.localeCompare(b.nom); });
+    var items = list.length
+      ? '<ul class="item-list">' + list.map(function (c) {
+          return (
+            '<li><div class="item-main"><div class="item-title">' + escapeHtml(c.nom) + "</div>" +
+            '<div class="item-meta">' +
+            (c.telephone ? '<a href="tel:' + escapeHtml(c.telephone) + '" class="contact-tel">' + escapeHtml(c.telephone) + "</a>" : "") +
+            (c.note ? (c.telephone ? " · " : "") + escapeHtml(c.note) : "") +
+            "</div></div>" +
+            '<button class="icon-btn" data-action="del-contact" data-id="' + c.id + '" aria-label="Supprimer">×</button></li>'
+          );
+        }).join("") + "</ul>"
+      : '<div class="empty-state">Aucun contact. Médecin, école, nounou…</div>';
+
+    return (
+      '<h2 class="section-title">Contacts</h2>' +
+      '<form class="add-form" data-action="add-contact">' +
+      '<input type="text" name="nom" placeholder="Nom (ex. Dr Martin)" required style="flex:1 1 140px">' +
+      '<input type="tel" name="telephone" placeholder="Téléphone">' +
+      '<input type="text" name="note" placeholder="Note (optionnel)" style="flex:1 1 140px">' +
+      '<button type="submit" class="btn-add">Ajouter</button>' +
+      "</form>" +
+      items
+    );
+  }
+
+  function renderNotes() {
+    var list = state.notes.slice().reverse();
+    var items = list.length
+      ? list.map(function (n) {
+          return (
+            '<li><div class="item-main"><div class="item-title">' + escapeHtml(n.texte) + "</div></div>" +
+            '<button class="icon-btn" data-action="del-note" data-id="' + n.id + '" aria-label="Supprimer">×</button></li>'
+          );
+        }).join("")
+      : '<li class="empty-state">Aucune note. Un numéro utile, un pense-bête, une idée de sortie…</li>';
+
+    return (
+      '<h2 class="section-title">Notes</h2>' +
+      '<form class="add-form" data-action="add-note">' +
+      '<input type="text" name="texte" placeholder="Écrire une note…" required style="flex:1 1 260px">' +
+      '<button type="submit" class="btn-add">Ajouter</button>' +
+      "</form>" +
+      '<ul class="item-list">' + items + "</ul>"
+    );
+  }
+
+  function formatEuros(n) {
+    return n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+  }
+
+  function renderBudget() {
+    var base = new Date();
+    base = new Date(base.getFullYear(), base.getMonth() + ui.budgetMonthOffset, 1);
+    var monthLabel = base.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+    var prefix = base.getFullYear() + "-" + pad(base.getMonth() + 1);
+
+    var monthExpenses = state.depenses
+      .filter(function (d) { return d.date.indexOf(prefix) === 0; })
+      .sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+
+    var total = monthExpenses.reduce(function (sum, d) { return sum + d.montant; }, 0);
+
+    var byCat = {};
+    monthExpenses.forEach(function (d) { byCat[d.categorie] = (byCat[d.categorie] || 0) + d.montant; });
+    var breakdown = Object.keys(byCat).length
+      ? '<div class="budget-breakdown">' + Object.keys(byCat).map(function (cat) {
+          var plafond = state.budgetPlafonds[cat];
+          var over = plafond && byCat[cat] > plafond;
+          return '<span class="budget-cat-pill' + (over ? " over-budget" : "") + '">' + escapeHtml(cat) + " · " + formatEuros(byCat[cat]) + (plafond ? " / " + formatEuros(plafond) : "") + "</span>";
+        }).join("") + "</div>"
+      : "";
+
+    var plafondsRows = BUDGET_CATEGORIES.map(function (cat) {
+      return (
+        '<div class="plafond-row"><label>' + escapeHtml(cat) + "</label>" +
+        '<input type="number" min="0" step="1" placeholder="Pas de plafond" data-action="edit-plafond" data-cat="' + escapeHtml(cat) + '" value="' + (state.budgetPlafonds[cat] || "") + '"></div>'
+      );
+    }).join("");
+
+    var items = monthExpenses.length
+      ? '<ul class="item-list">' + monthExpenses.map(function (d) {
+          return (
+            '<li><div class="item-main"><div class="item-title">' + escapeHtml(d.libelle) + '</div>' +
+            '<div class="item-meta">' + formatShort(d.date) + " · " + escapeHtml(d.categorie) + "</div></div>" +
+            '<div class="budget-amount">' + formatEuros(d.montant) + "</div>" +
+            '<button class="icon-btn" data-action="del-depense" data-id="' + d.id + '" aria-label="Supprimer">×</button>' +
+            "</li>"
+          );
+        }).join("") + "</ul>"
+      : '<div class="empty-state">Aucune dépense enregistrée ce mois-ci.</div>';
+
+    return (
+      '<h2 class="section-title">Budget</h2>' +
+      '<div class="cal-header">' +
+      '<button data-action="budget-prev" aria-label="Mois précédent">‹</button>' +
+      '<span class="label">' + monthLabel + "</span>" +
+      '<button data-action="budget-next" aria-label="Mois suivant">›</button>' +
+      "</div>" +
+      '<div class="budget-total">Total du mois : <strong>' + formatEuros(total) + "</strong></div>" +
+      breakdown +
+      '<form class="add-form" data-action="add-depense">' +
+      '<input type="text" name="libelle" placeholder="Dépense (ex. courses Leclerc)" required style="flex:1 1 180px">' +
+      '<input type="number" name="montant" placeholder="Montant €" step="0.01" min="0" required style="width:110px">' +
+      '<select name="categorie">' +
+      BUDGET_CATEGORIES.map(function (c) { return '<option value="' + escapeHtml(c) + '">' + escapeHtml(c) + "</option>"; }).join("") +
+      "</select>" +
+      '<input type="date" name="date" value="' + todayISO() + '">' +
+      '<button type="submit" class="btn-add">Ajouter</button>' +
+      "</form>" +
+      items +
+      '<div class="ideas-block no-print">' +
+      '<button class="btn-secondary" data-action="toggle-plafonds">' + (ui.plafondsOpen ? "Masquer les plafonds" : "Définir des plafonds mensuels par catégorie") + "</button>" +
+      (ui.plafondsOpen ? '<div class="plafonds-panel">' + plafondsRows + "</div>" : "") +
+      "</div>"
+    );
+  }
+
+  function resizeImageFile(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        var img = new Image();
+        img.onload = function () {
+          var maxDim = 240;
+          var scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+          var w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+          var canvas = document.createElement("canvas");
+          canvas.width = w; canvas.height = h;
+          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL("image/jpeg", 0.72));
+        };
+        img.onerror = reject;
+        img.src = ev.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function ageLabel(dob) {
+    if (!dob) return "";
+    var b = new Date(dob + "T00:00:00");
+    var now = new Date();
+    var months = (now.getFullYear() - b.getFullYear()) * 12 + (now.getMonth() - b.getMonth());
+    if (now.getDate() < b.getDate()) months -= 1;
+    if (months < 0) return "";
+    if (months < 24) return months + " mois";
+    return Math.floor(months / 12) + " ans";
+  }
+
+  function daysUntilBirthday(dob) {
+    if (!dob) return null;
+    var b = new Date(dob + "T00:00:00");
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var next = new Date(today.getFullYear(), b.getMonth(), b.getDate());
+    if (next < today) next.setFullYear(next.getFullYear() + 1);
+    return Math.round((next - today) / 86400000);
+  }
+
+  function renderEnfants() {
+    var t = todayISO();
+    var cards = state.enfants.length
+      ? state.enfants.map(function (enfant) {
+          var rdvs = state.rdvs
+            .filter(function (r) { return r.enfant === enfant.id && r.date >= t; })
+            .sort(function (a, b) { return (a.date + (a.heure || "")) < (b.date + (b.heure || "")) ? -1 : 1; });
+          var rdvHtml = rdvs.length
+            ? '<ul class="item-list">' + rdvs.map(function (r) {
+                return '<li><div class="item-main"><div class="item-title">' + escapeHtml(r.titre) + '</div><div class="item-meta">' + formatShort(r.date) + (r.heure ? " · " + r.heure : "") + "</div></div></li>";
+              }).join("") + "</ul>"
+            : '<div class="empty-state">Aucun rendez-vous à venir.</div>';
+          var age = ageLabel(enfant.naissance);
+          var initiales = enfant.prenom ? enfant.prenom.charAt(0).toUpperCase() : "?";
+          var avatar = enfant.photo
+            ? '<img class="enfant-avatar" src="' + enfant.photo + '" alt="' + escapeHtml(enfant.prenom) + '">'
+            : '<div class="enfant-avatar enfant-avatar-fallback">' + initiales + "</div>";
+          return (
+            '<div class="enfant-card">' +
+            '<div class="enfant-card-header">' +
+            '<div class="enfant-header-left">' +
+            avatar +
+            '<div><h3>' + escapeHtml(enfant.prenom) + (age ? ' <span class="enfant-age">· ' + age + "</span>" : "") + "</h3>" +
+            '<label class="photo-label">' + (enfant.photo ? "Changer la photo" : "Ajouter une photo") +
+            '<input type="file" accept="image/*" class="photo-input" data-action="edit-enfant-photo" data-id="' + enfant.id + '">' +
+            "</label>" +
+            (enfant.photo ? ' <button class="photo-remove" data-action="del-enfant-photo" data-id="' + enfant.id + '">Retirer</button>' : "") +
+            "</div>" +
+            "</div>" +
+            '<button class="icon-btn" data-action="del-enfant" data-id="' + enfant.id + '" aria-label="Supprimer">×</button></div>' +
+            '<div class="enfant-field-row">' +
+            '<label class="enfant-field-label">Date de naissance</label>' +
+            '<input type="date" data-action="edit-enfant-naissance" data-id="' + enfant.id + '" value="' + (enfant.naissance || "") + '">' +
+            "</div>" +
+            '<div class="enfant-field-row">' +
+            '<label class="enfant-field-label">Notes (allergies, école, pointures…)</label>' +
+            '<textarea data-action="edit-enfant-notes" data-id="' + enfant.id + '" placeholder="—">' + escapeHtml(enfant.notes || "") + "</textarea>" +
+            "</div>" +
+            '<div class="group-label">Rendez-vous à venir</div>' +
+            rdvHtml +
+            "</div>"
+          );
+        }).join("")
+      : '<div class="empty-state">Aucun enfant ajouté pour l\u2019instant.</div>';
+
+    return (
+      '<h2 class="section-title">Enfants</h2>' +
+      '<form class="add-form" data-action="add-enfant">' +
+      '<input type="text" name="prenom" placeholder="Prénom" required style="flex:1 1 140px">' +
+      '<input type="date" name="naissance" title="Date de naissance (optionnel)">' +
+      '<button type="submit" class="btn-add">Ajouter</button>' +
+      "</form>" +
+      cards
+    );
+  }
+
+  function renderRdv() {
+    var sorted = state.rdvs.slice().sort(function (a, b) {
+      return (a.date + (a.heure || "")) < (b.date + (b.heure || "")) ? -1 : 1;
+    });
+    var t = todayISO();
+    var filterActive = !!ui.selectedDate;
+    var visible = filterActive ? sorted.filter(function (r) { return r.date === ui.selectedDate; }) : sorted;
+    var enfantById = {};
+    state.enfants.forEach(function (e) { enfantById[e.id] = e.prenom; });
+    var items = visible.length
+      ? visible.map(function (r) {
+          var isPast = r.date < t;
+          var enfantLabel = r.enfant && enfantById[r.enfant] ? " · " + escapeHtml(enfantById[r.enfant]) : "";
+          return (
+            '<li class="' + (isPast ? "item-past" : "") + '">' +
+            '<div class="item-main">' +
+            '<div class="item-title">' + escapeHtml(r.titre) + "</div>" +
+            '<div class="item-meta">' + formatShort(r.date) + (r.heure ? " · " + r.heure : "") + (r.lieu ? " · " + escapeHtml(r.lieu) : "") + enfantLabel + "</div>" +
+            "</div>" +
+            '<button class="icon-btn" data-action="del-rdv" data-id="' + r.id + '" aria-label="Supprimer">×</button>' +
+            "</li>"
+          );
+        }).join("")
+      : '<li class="empty-state">' + (filterActive ? "Aucun rendez-vous ce jour-là." : "Aucun rendez-vous pour l\u2019instant. Ajoutez-en un ci-dessus.") + "</li>";
+
+    var filterNote = filterActive
+      ? '<div class="cal-filter-note"><span>Rendez-vous du ' + formatHuman(ui.selectedDate) + '</span><button data-action="cal-clear">Voir tous les rendez-vous</button></div>'
+      : "";
+
+    var enfantSelect = state.enfants.length
+      ? '<select name="enfant"><option value="">Rendez-vous du foyer</option>' +
+        state.enfants.map(function (e) { return '<option value="' + e.id + '">' + escapeHtml(e.prenom) + "</option>"; }).join("") +
+        "</select>"
+      : "";
+
+    return (
+      '<h2 class="section-title">Rendez-vous</h2>' +
+      renderCalendar() +
+      filterNote +
+      '<form class="add-form" data-action="add-rdv">' +
+      '<input type="text" name="titre" placeholder="Rendez-vous (ex. pédiatre)" required>' +
+      '<input type="date" name="date" required value="' + t + '">' +
+      '<input type="time" name="heure">' +
+      '<input type="text" name="lieu" placeholder="Lieu (optionnel)" style="flex:1 1 140px">' +
+      enfantSelect +
+      '<button type="submit" class="btn-add">Ajouter</button>' +
+      "</form>" +
+      (ui.signedIn ? '<div class="sync-note">Chaque nouveau rendez-vous est aussi ajouté à ton Google Agenda, avec un rappel.</div>' : "") +
+      '<ul class="item-list">' + items + "</ul>"
+    );
+  }
+
+  function renderRepas() {
+    var base = mondayOf(new Date());
+    base.setDate(base.getDate() + ui.weekOffset * 7);
+    var t = todayISO();
+    var end = new Date(base);
+    end.setDate(end.getDate() + 6);
+    var label = base.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) + " – " + end.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+
+    var rows = "";
+    for (var i = 0; i < 7; i++) {
+      var d = new Date(base);
+      d.setDate(d.getDate() + i);
+      var iso = isoDate(d);
+      var entry = state.repas[iso] || {};
+      var isToday = iso === t;
+      rows +=
+        '<div class="day-row' + (isToday ? " today-marker" : "") + '">' +
+        '<div class="day-label">' + DAYS[i] + '<span class="date-sub">' + formatShort(iso) + "</span></div>" +
+        "<div>" +
+        '<span class="meal-label">Midi</span>' +
+        '<textarea data-action="edit-repas" data-date="' + iso + '" data-slot="midi" placeholder="—">' + escapeHtml(entry.midi || "") + "</textarea>" +
+        "</div>" +
+        "<div>" +
+        '<span class="meal-label">Soir</span>' +
+        '<textarea data-action="edit-repas" data-date="' + iso + '" data-slot="soir" placeholder="—">' + escapeHtml(entry.soir || "") + "</textarea>" +
+        "</div>" +
+        "</div>";
+    }
+
+    return (
+      '<h2 class="section-title">Repas de la semaine</h2>' +
+      '<div class="repas-actions no-print">' +
+      '<button class="btn-secondary" data-action="print-repas">Imprimer cette semaine</button>' +
+      '<button class="btn-secondary" data-action="repas-to-courses" data-week-start="' + isoDate(base) + '">Ajouter ces repas aux courses</button>' +
+      "</div>" +
+      '<div id="repas-print-area">' +
+      '<div class="week-nav">' +
+      '<button data-action="week-prev" class="no-print">← Semaine préc.</button>' +
+      '<span class="label">' + label + "</span>" +
+      '<button data-action="week-next" class="no-print">Semaine suiv. →</button>' +
+      "</div>" +
+      '<div class="week-grid">' + rows + "</div>" +
+      "</div>" +
+      '<div class="ideas-block no-print">' +
+      '<button class="btn-secondary" data-action="toggle-ideas">' + (ui.ideasOpen ? "Masquer les idées de repas" : "💡 Besoin d'idées ? Voir des idées de repas") + "</button>" +
+      (ui.ideasOpen
+        ? '<div class="ideas-panel">' + MEAL_IDEAS.map(function (cat) {
+            return (
+              '<div class="group-label">' + escapeHtml(cat[0]) + "</div>" +
+              '<div class="chip-row">' + cat[1].map(function (item) {
+                return '<span class="chip idea-chip">' + escapeHtml(item) + "</span>";
+              }).join("") + "</div>"
+            );
+          }).join("") + "</div>"
+        : "") +
+      "</div>"
+    );
+  }
+
+  function renderCourses() {
+    var groups = {};
+    CATEGORIES.forEach(function (c) { groups[c] = []; });
+    state.courses.forEach(function (c) {
+      if (!groups[c.categorie]) groups[c.categorie] = [];
+      groups[c.categorie].push(c);
+    });
+
+    var hasAny = state.courses.length > 0;
+    var body = "";
+    if (!hasAny) {
+      body = '<div class="empty-state">Liste vide. Ajoutez votre premier article ci-dessus.</div>';
+    } else {
+      CATEGORIES.forEach(function (cat) {
+        var list = groups[cat] || [];
+        if (!list.length) return;
+        list.sort(function (a, b) { return (a.achete === b.achete) ? 0 : a.achete ? 1 : -1; });
+        body +=
+          '<div class="group-label">' + escapeHtml(cat) + "</div>" +
+          '<ul class="item-list">' +
+          list.map(function (c) {
+            return (
+              '<li class="' + (c.achete ? "item-done" : "") + '">' +
+              '<input type="checkbox" data-action="toggle-course" data-id="' + c.id + '" ' + (c.achete ? "checked" : "") + ">" +
+              '<div class="item-main"><div class="item-title">' + escapeHtml(c.texte) + (c.assignee ? ' <span class="assignee-badge">' + escapeHtml(c.assignee) + "</span>" : "") + "</div></div>" +
+              '<button class="icon-btn" data-action="del-course" data-id="' + c.id + '" aria-label="Supprimer">×</button>' +
+              "</li>"
+            );
+          }).join("") +
+          "</ul>";
+      });
+    }
+
+    var hasChecked = state.courses.some(function (c) { return c.achete; });
+
+    var activeLower = {};
+    state.courses.forEach(function (c) { if (!c.achete) activeLower[c.texte.toLowerCase()] = true; });
+    var suggestions = state.coursesHistorique
+      .filter(function (h) { return !activeLower[h.texte.toLowerCase()]; })
+      .sort(function (a, b) { return b.count - a.count; })
+      .slice(0, 6);
+    var chips = suggestions.length
+      ? '<div class="chip-row">' + suggestions.map(function (h) {
+          return '<button class="chip" data-action="quick-add-course" data-texte="' + escapeHtml(h.texte) + '" data-categorie="' + escapeHtml(h.categorie) + '">+ ' + escapeHtml(h.texte) + "</button>";
+        }).join("") + "</div>"
+      : "";
+
+    return (
+      '<h2 class="section-title">Liste de courses</h2>' +
+      '<form class="add-form" data-action="add-course">' +
+      '<input type="text" name="texte" placeholder="Article à ajouter" required>' +
+      '<select name="categorie">' +
+      CATEGORIES.map(function (c) { return '<option value="' + escapeHtml(c) + '">' + escapeHtml(c) + "</option>"; }).join("") +
+      "</select>" +
+      '<select name="assignee"><option value="">Qui ?</option>' +
+      ASSIGNEES.map(function (a) { return '<option value="' + a + '">' + a + "</option>"; }).join("") +
+      "</select>" +
+      '<button type="submit" class="btn-add">Ajouter</button>' +
+      "</form>" +
+      chips +
+      body +
+      (hasChecked ? '<div class="clear-btn-row"><button data-action="clear-bought">Vider les articles achetés</button></div>' : "")
+    );
+  }
+
+  function renderTaches() {
+    var list = state.taches.slice().sort(function (a, b) {
+      if (a.fait !== b.fait) return a.fait ? 1 : -1;
+      if (!!a.recurrente !== !!b.recurrente) return a.recurrente ? -1 : 1;
+      return 0;
+    });
+    var items = list.length
+      ? list.map(function (x) {
+          return (
+            '<li class="' + (x.fait ? "item-done" : "") + '">' +
+            '<input type="checkbox" data-action="toggle-tache" data-id="' + x.id + '" ' + (x.fait ? "checked" : "") + ">" +
+            '<div class="item-main"><div class="item-title">' + (x.recurrente ? '<span class="recur-tag" title="Tâche récurrente">↻</span> ' : "") + escapeHtml(x.texte) + (x.assignee ? ' <span class="assignee-badge">' + escapeHtml(x.assignee) + "</span>" : "") + "</div></div>" +
+            '<button class="icon-btn" data-action="del-tache" data-id="' + x.id + '" aria-label="Supprimer">×</button>' +
+            "</li>"
+          );
+        }).join("")
+      : '<li class="empty-state">Rien en attente. Ajoutez une tâche ci-dessus.</li>';
+
+    return (
+      '<h2 class="section-title">Tâches</h2>' +
+      '<form class="add-form" data-action="add-tache">' +
+      '<input type="text" name="texte" placeholder="Ex. arroser les plantes, appeler le plombier…" required style="flex:1 1 260px">' +
+      '<select name="assignee"><option value="">Qui ?</option>' +
+      ASSIGNEES.map(function (a) { return '<option value="' + a + '">' + a + "</option>"; }).join("") +
+      "</select>" +
+      '<label class="recur-check"><input type="checkbox" name="recurrente"> Récurrente</label>' +
+      '<button type="submit" class="btn-add">Ajouter</button>' +
+      "</form>" +
+      '<ul class="item-list">' + items + "</ul>"
+    );
+  }
+
+  function renderAuthArea() {
+    if (!ui.googleAvailable) return "";
+    if (!ui.signedIn) {
+      return '<div class="auth-area"><button class="auth-btn" data-action="google-signin">Se connecter avec Google</button></div>';
+    }
+    if (!ui.driveFileId) {
+      return (
+        '<div class="auth-area">' +
+        '<span class="auth-status">Connecté(e) — pas encore de carnet partagé</span>' +
+        '<button class="auth-btn" data-action="drive-create">Créer un carnet partagé</button>' +
+        '<button class="auth-btn ghost" data-action="drive-choose">Utiliser un carnet déjà partagé</button>' +
+        "</div>"
+      );
+    }
+    return (
+      '<div class="auth-area">' +
+      '<span class="auth-status">' + (ui.driveStatus || "Synchronisé avec Google Drive") + "</span>" +
+      '<button class="auth-btn ghost" data-action="drive-share">Partager ce carnet</button>' +
+      '<button class="auth-btn ghost" data-action="google-signout">Se déconnecter</button>' +
+      "</div>"
+    );
+  }
+
+  function renderBodyContent(s) {
+    state = s;
+    var today = new Date();
+    var dateLabel = today.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+    var panel = ui.tab === "semaine" ? renderSemaine() : ui.tab === "rdv" ? renderRdv() : ui.tab === "repas" ? renderRepas() : ui.tab === "courses" ? renderCourses() : ui.tab === "taches" ? renderTaches() : ui.tab === "budget" ? renderBudget() : ui.tab === "enfants" ? renderEnfants() : ui.tab === "contacts" ? renderContacts() : ui.tab === "recherche" ? renderRecherche() : renderNotes();
+    return (
+      '<div class="wrap" id="app">' +
+      '<header class="top">' +
+      '<div class="eyebrow">Carnet de maison</div>' +
+      "<h1>" + dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1) + "</h1>" +
+      renderTodayStrip() +
+      renderAuthArea() +
+      "</header>" +
+      '<main class="panel">' + panel + "</main>" +
+      renderQuickAdd() +
+      renderMoreMenu() +
+      renderTabs() +
+      "</div>"
+    );
+  }
+
+  function render() {
+    document.getElementById("app").outerHTML = renderBodyContent(state);
+    if (ui.focusAddForm) {
+      ui.focusAddForm = false;
+      setTimeout(function () {
+        var form = document.querySelector("main.panel .add-form");
+        var el = form && form.querySelector("input, select, textarea");
+        if (el) el.focus();
+      }, 30);
+    }
+    if (ui.tab === "recherche") {
+      var si = document.getElementById("search-input");
+      if (si) {
+        si.value = ui.searchQuery;
+        si.focus();
+        si.setSelectionRange(si.value.length, si.value.length);
+      }
+    }
+  }
+
+  // ---------- Persistence ----------
+
+  var artifactApi = null;
+  if (window.claude && typeof window.claude.use === "function") {
+    window.claude.use("artifact").then(function (a) { artifactApi = a; }).catch(function () {});
+  }
+
+  function buildDocument(s) {
+    var stateScript = '<script id="state-data" type="application/json">' + JSON.stringify(s) + '<' + "/script>";
+    return (
+      "<!DOCTYPE html>\n<html lang=\"fr\" data-theme=\"light\">\n" +
+      HEAD_HTML + "\n" +
+      "<body>" +
+      renderBodyContent(s) +
+      stateScript +
+      SCRIPT_EL_HTML +
+      "</body>\n</html>"
+    );
+  }
+
+  function exportData() {
+    var json = JSON.stringify(state, null, 2);
+    var filename = "carnet-maison-" + todayISO() + ".json";
+    function fallbackDownload() {
+      try {
+        var blob = new Blob([json], { type: "application/json" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+      } catch (e) {}
+    }
+    if (window.claude && typeof window.claude.use === "function") {
+      window.claude.use("downloads").then(function (dl) {
+        if (!dl) { fallbackDownload(); return; }
+        dl.save({ filename: filename, data: json }).catch(fallbackDownload);
+      }).catch(fallbackDownload);
+    } else {
+      fallbackDownload();
+    }
+  }
+
+  function persist() {
+    try { localStorage.setItem("carnet-maison-state", JSON.stringify(state)); } catch (e) {}
+    if (artifactApi) {
+      artifactApi.publish(buildDocument(state)).catch(function () {});
+    }
+    scheduleDriveSave();
+  }
+
+  (function loadLocalFallbackIfEmpty() {
+    var empty = !state.rdvs.length && !state.courses.length && !state.taches.length && !state.notes.length && !state.depenses.length && !state.enfants.length && Object.keys(state.repas).length === 0;
+    if (!empty) return;
+    try {
+      var saved = localStorage.getItem("carnet-maison-state");
+      if (saved) state = JSON.parse(saved);
+    } catch (e) {}
+  })();
+
+  // ---------- Google Sign-In + Google Drive sync ----------
+  // Nécessite d'avoir renseigné GOOGLE_CLIENT_ID / GOOGLE_API_KEY ci-dessus,
+  // et de tourner sur un domaine autorisé (ne fonctionne pas depuis le lien claude.ai,
+  // bloqué volontairement par la politique de sécurité des pages publiées).
+
+  function loadScriptOnce(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = src; s.async = true;
+      s.onload = function () { resolve(); };
+      s.onerror = function () { reject(new Error("blocked: " + src)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function driveHeaders() {
+    return { Authorization: "Bearer " + google_.accessToken };
+  }
+
+  function driveFetch(url, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({}, opts.headers || {}, driveHeaders());
+    return fetch(url, opts).then(function (r) {
+      if (!r.ok) return r.text().then(function (t) { throw new Error("Drive API " + r.status + ": " + t); });
+      return r;
+    });
+  }
+
+  function loadFromDrive(fileId, silent) {
+    return driveFetch("https://www.googleapis.com/drive/v3/files/" + fileId + "?alt=media")
+      .then(function (r) { return r.json(); })
+      .then(function (remote) {
+        var same = JSON.stringify(remote) === JSON.stringify(state);
+        if (!same) {
+          state = remote;
+          if (!state.rdvs) state.rdvs = [];
+          if (!state.repas) state.repas = {};
+          if (!state.courses) state.courses = [];
+          if (!state.taches) state.taches = [];
+          if (!state.notes) state.notes = [];
+          if (!state.depenses) state.depenses = [];
+          if (!state.enfants) state.enfants = [];
+          if (!state.coursesHistorique) state.coursesHistorique = [];
+          if (!state.contacts) state.contacts = [];
+          if (!state.budgetPlafonds) state.budgetPlafonds = {};
+          try { localStorage.setItem("carnet-maison-state", JSON.stringify(state)); } catch (e) {}
+          render();
+        }
+        ui.driveStatus = "Synchronisé avec Google Drive";
+        if (!silent) render();
+      })
+      .catch(function () {
+        ui.driveStatus = "Impossible de récupérer les dernières données";
+        if (!silent) render();
+      });
+  }
+
+  var driveSaveTimer = null;
+  function scheduleDriveSave() {
+    if (!ui.driveFileId || !google_.accessToken) return;
+    if (driveSaveTimer) clearTimeout(driveSaveTimer);
+    driveSaveTimer = setTimeout(function () {
+      driveFetch("https://www.googleapis.com/upload/drive/v3/files/" + ui.driveFileId + "?uploadType=media", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(state)
+      }).catch(function () {});
+    }, 1200);
+  }
+
+  function createDriveFile() {
+    var boundary = "carnet_maison_boundary";
+    var metadata = { name: DRIVE_FILE_NAME, mimeType: "application/json" };
+    var body =
+      "--" + boundary + "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" + JSON.stringify(metadata) + "\r\n" +
+      "--" + boundary + "\r\nContent-Type: application/json\r\n\r\n" + JSON.stringify(state) + "\r\n" +
+      "--" + boundary + "--";
+    return driveFetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart", {
+      method: "POST",
+      headers: { "Content-Type": 'multipart/related; boundary="' + boundary + '"' },
+      body: body
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (file) {
+        ui.driveFileId = file.id;
+        try { localStorage.setItem("carnet-maison-drive-file-id", file.id); } catch (e) {}
+        ui.driveStatus = "Carnet créé — pense à le partager avec Laura";
+        render();
+      });
+  }
+
+  function openSharePage() {
+    if (!ui.driveFileId) return;
+    window.open("https://drive.google.com/file/d/" + ui.driveFileId + "/view", "_blank");
+  }
+
+  function createCalendarEvent(rdv) {
+    if (!google_.accessToken) return Promise.resolve(null);
+    var tz = (Intl.DateTimeFormat().resolvedOptions().timeZone) || "Europe/Paris";
+    var body;
+    if (rdv.heure) {
+      var start = new Date(rdv.date + "T" + rdv.heure + ":00");
+      var end = new Date(start.getTime());
+      end.setHours(end.getHours() + 1);
+      function toLocalDT(d) { return isoDate(d) + "T" + pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":00"; }
+      body = {
+        summary: rdv.titre,
+        location: rdv.lieu || "",
+        start: { dateTime: toLocalDT(start), timeZone: tz },
+        end: { dateTime: toLocalDT(end), timeZone: tz },
+        reminders: { useDefault: false, overrides: [{ method: "popup", minutes: 60 }] }
+      };
+    } else {
+      var endDate = new Date(rdv.date + "T00:00:00");
+      endDate.setDate(endDate.getDate() + 1);
+      body = {
+        summary: rdv.titre,
+        location: rdv.lieu || "",
+        start: { date: rdv.date },
+        end: { date: isoDate(endDate) },
+        reminders: { useDefault: false, overrides: [{ method: "popup", minutes: 12 * 60 }] }
+      };
+    }
+    return driveFetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    }).then(function (r) { return r.json(); }).then(function (ev) { return ev.id || null; }).catch(function () { return null; });
+  }
+
+  function deleteCalendarEvent(eventId) {
+    if (!google_.accessToken || !eventId) return Promise.resolve();
+    return driveFetch("https://www.googleapis.com/calendar/v3/calendars/primary/events/" + eventId, { method: "DELETE" }).catch(function () {});
+  }
+
+  function ensurePicker() {
+    if (google_.pickerLoaded) return Promise.resolve();
+    return new Promise(function (resolve) {
+      gapi.load("picker", { callback: function () { google_.pickerLoaded = true; resolve(); } });
+    });
+  }
+
+  function openPicker() {
+    ensurePicker().then(function () {
+      var view = new google.picker.DocsView(google.picker.ViewId.DOCS).setMimeTypes("application/json");
+      var picker = new google.picker.PickerBuilder()
+        .setOAuthToken(google_.accessToken)
+        .setDeveloperKey(GOOGLE_API_KEY)
+        .addView(view)
+        .setCallback(function (data) {
+          if (data.action === google.picker.Action.PICKED) {
+            var fileId = data.docs[0].id;
+            ui.driveFileId = fileId;
+            try { localStorage.setItem("carnet-maison-drive-file-id", fileId); } catch (e) {}
+            loadFromDrive(fileId);
+          }
+        })
+        .build();
+      picker.setVisible(true);
+    });
+  }
+
+  function onTokenResponse(resp) {
+    if (resp.error) {
+      if (google_.silentAttempted) { google_.silentAttempted = false; return; }
+      ui.driveStatus = "Connexion refusée"; render(); return;
+    }
+    google_.accessToken = resp.access_token;
+    ui.signedIn = true;
+    if (ui.driveFileId) loadFromDrive(ui.driveFileId);
+    render();
+  }
+
+  function requestTokenSilently() {
+    if (!google_.tokenClient) return;
+    google_.silentAttempted = true;
+    google_.tokenClient.requestAccessToken({ prompt: "" });
+  }
+
+  function initGoogleAuth() {
+    if (GOOGLE_CLIENT_ID.indexOf("REMPLACE_PAR") === 0) return; // pas encore configuré
+    try {
+      google_.tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: DRIVE_SCOPE,
+        callback: onTokenResponse
+      });
+      ui.googleAvailable = true;
+      render();
+      // Reconnexion automatique et silencieuse si on s'était déjà connecté sur cet appareil
+      if (ui.driveFileId) requestTokenSilently();
+      setInterval(function () {
+        if (document.visibilityState === "visible" && ui.driveFileId && google_.accessToken) {
+          loadFromDrive(ui.driveFileId, true);
+        }
+      }, 20000);
+      // Le jeton Google expire après ~1h : on le renouvelle discrètement avant ça
+      setInterval(function () {
+        if (ui.signedIn) requestTokenSilently();
+      }, 45 * 60 * 1000);
+    } catch (e) {}
+  }
+
+  Promise.all([
+    loadScriptOnce("https://accounts.google.com/gsi/client"),
+    loadScriptOnce("https://apis.google.com/js/api.js")
+  ]).then(initGoogleAuth).catch(function () { /* Google indisponible sur ce domaine (normal sur claude.ai) */ });
+
+  document.addEventListener("click", function (e) {
+    if (e.target.closest('[data-action="google-signin"]')) {
+      if (google_.tokenClient) google_.tokenClient.requestAccessToken();
+      return;
+    }
+    if (e.target.closest('[data-action="google-signout"]')) {
+      if (google_.accessToken && window.google) google.accounts.oauth2.revoke(google_.accessToken, function () {});
+      google_.accessToken = null;
+      ui.signedIn = false; ui.driveFileId = null;
+      try { localStorage.removeItem("carnet-maison-drive-file-id"); } catch (err) {}
+      render(); return;
+    }
+    if (e.target.closest('[data-action="drive-create"]')) { createDriveFile(); return; }
+    if (e.target.closest('[data-action="drive-choose"]')) { openPicker(); return; }
+    if (e.target.closest('[data-action="drive-share"]')) { openSharePage(); return; }
+  });
+
+  // ---------- Event handling ----------
+
+  document.addEventListener("click", function (e) {
+    var tabBtn = e.target.closest('[data-action="set-tab"]');
+    if (tabBtn) { ui.tab = tabBtn.getAttribute("data-tab"); ui.quickAddOpen = false; ui.moreMenuOpen = false; render(); return; }
+
+    var toggleMore = e.target.closest('[data-action="toggle-more"]');
+    if (toggleMore) { ui.moreMenuOpen = !ui.moreMenuOpen; render(); return; }
+    var closeMore = e.target.closest('[data-action="close-more"]');
+    if (closeMore) { ui.moreMenuOpen = false; render(); return; }
+    var exportBtn = e.target.closest('[data-action="export-data"]');
+    if (exportBtn) { ui.moreMenuOpen = false; exportData(); render(); return; }
+
+    var toggleQuickAdd = e.target.closest('[data-action="toggle-quickadd"]');
+    if (toggleQuickAdd) { ui.quickAddOpen = !ui.quickAddOpen; render(); return; }
+    var closeQuickAdd = e.target.closest('[data-action="close-quickadd"]');
+    if (closeQuickAdd) { ui.quickAddOpen = false; render(); return; }
+    var quickAddGoto = e.target.closest('[data-action="quickadd-goto"]');
+    if (quickAddGoto) {
+      ui.tab = quickAddGoto.getAttribute("data-tab");
+      ui.quickAddOpen = false;
+      ui.focusAddForm = true;
+      render(); return;
+    }
+
+    var delRdv = e.target.closest('[data-action="del-rdv"]');
+    if (delRdv) {
+      var rdvId = delRdv.getAttribute("data-id");
+      var removed = state.rdvs.filter(function (r) { return r.id === rdvId; })[0];
+      state.rdvs = state.rdvs.filter(function (r) { return r.id !== rdvId; });
+      render(); persist();
+      if (removed && removed.calendarEventId) deleteCalendarEvent(removed.calendarEventId);
+      return;
+    }
+
+    var delCourse = e.target.closest('[data-action="del-course"]');
+    if (delCourse) {
+      state.courses = state.courses.filter(function (c) { return c.id !== delCourse.getAttribute("data-id"); });
+      render(); persist(); return;
+    }
+
+    var delTache = e.target.closest('[data-action="del-tache"]');
+    if (delTache) {
+      state.taches = state.taches.filter(function (x) { return x.id !== delTache.getAttribute("data-id"); });
+      render(); persist(); return;
+    }
+
+    var delNote = e.target.closest('[data-action="del-note"]');
+    if (delNote) {
+      state.notes = state.notes.filter(function (n) { return n.id !== delNote.getAttribute("data-id"); });
+      render(); persist(); return;
+    }
+
+    var delDepense = e.target.closest('[data-action="del-depense"]');
+    if (delDepense) {
+      state.depenses = state.depenses.filter(function (d) { return d.id !== delDepense.getAttribute("data-id"); });
+      render(); persist(); return;
+    }
+
+    var delEnfant = e.target.closest('[data-action="del-enfant"]');
+    if (delEnfant) {
+      state.enfants = state.enfants.filter(function (en) { return en.id !== delEnfant.getAttribute("data-id"); });
+      render(); persist(); return;
+    }
+
+    var delContact = e.target.closest('[data-action="del-contact"]');
+    if (delContact) {
+      state.contacts = state.contacts.filter(function (c) { return c.id !== delContact.getAttribute("data-id"); });
+      render(); persist(); return;
+    }
+
+    var delPhoto = e.target.closest('[data-action="del-enfant-photo"]');
+    if (delPhoto) {
+      var enIdDel = delPhoto.getAttribute("data-id");
+      state.enfants.forEach(function (en) { if (en.id === enIdDel) en.photo = ""; });
+      render(); persist(); return;
+    }
+
+    var budgetPrev = e.target.closest('[data-action="budget-prev"]');
+    if (budgetPrev) { ui.budgetMonthOffset -= 1; render(); return; }
+    var budgetNext = e.target.closest('[data-action="budget-next"]');
+    if (budgetNext) { ui.budgetMonthOffset += 1; render(); return; }
+
+    var quickAdd = e.target.closest('[data-action="quick-add-course"]');
+    if (quickAdd) {
+      addCourseItem(quickAdd.getAttribute("data-texte"), quickAdd.getAttribute("data-categorie"));
+      render(); persist(); return;
+    }
+
+    var printRepas = e.target.closest('[data-action="print-repas"]');
+    if (printRepas) { window.print(); return; }
+
+    var toggleIdeas = e.target.closest('[data-action="toggle-ideas"]');
+    if (toggleIdeas) { ui.ideasOpen = !ui.ideasOpen; render(); return; }
+
+    var togglePlafonds = e.target.closest('[data-action="toggle-plafonds"]');
+    if (togglePlafonds) { ui.plafondsOpen = !ui.plafondsOpen; render(); return; }
+
+    var repasToCourses = e.target.closest('[data-action="repas-to-courses"]');
+    if (repasToCourses) {
+      var weekStart = repasToCourses.getAttribute("data-week-start");
+      var startDate = new Date(weekStart + "T00:00:00");
+      for (var wi = 0; wi < 7; wi++) {
+        var wd = new Date(startDate); wd.setDate(wd.getDate() + wi);
+        var wEntry = state.repas[isoDate(wd)] || {};
+        [wEntry.midi, wEntry.soir].forEach(function (meal) {
+          if (!meal) return;
+          meal.split(",").forEach(function (part) {
+            if (part.trim()) addCourseItem(part, "Épicerie");
+          });
+        });
+      }
+      render(); persist(); return;
+    }
+
+    var clearBought = e.target.closest('[data-action="clear-bought"]');
+    if (clearBought) {
+      state.courses = state.courses.filter(function (c) { return !c.achete; });
+      render(); persist(); return;
+    }
+
+    var wkPrev = e.target.closest('[data-action="week-prev"]');
+    if (wkPrev) { ui.weekOffset -= 1; render(); return; }
+    var wkNext = e.target.closest('[data-action="week-next"]');
+    if (wkNext) { ui.weekOffset += 1; render(); return; }
+
+    var calSelect = e.target.closest('[data-action="cal-select"]');
+    if (calSelect) {
+      var d = calSelect.getAttribute("data-date");
+      ui.selectedDate = (ui.selectedDate === d) ? null : d;
+      render(); return;
+    }
+    var calPrev = e.target.closest('[data-action="cal-prev"]');
+    if (calPrev) { ui.calMonthOffset -= 1; render(); return; }
+    var calNext = e.target.closest('[data-action="cal-next"]');
+    if (calNext) { ui.calMonthOffset += 1; render(); return; }
+    var calClear = e.target.closest('[data-action="cal-clear"]');
+    if (calClear) { ui.selectedDate = null; render(); return; }
+  });
+
+  document.addEventListener("input", function (e) {
+    var si = e.target.closest("#search-input");
+    if (si) { ui.searchQuery = si.value; render(); }
+  });
+
+  document.addEventListener("change", function (e) {
+    var toggleCourse = e.target.closest('[data-action="toggle-course"]');
+    if (toggleCourse) {
+      var cId = toggleCourse.getAttribute("data-id");
+      state.courses.forEach(function (c) { if (c.id === cId) c.achete = toggleCourse.checked; });
+      render(); persist(); return;
+    }
+    var toggleTache = e.target.closest('[data-action="toggle-tache"]');
+    if (toggleTache) {
+      var tId = toggleTache.getAttribute("data-id");
+      state.taches.forEach(function (x) {
+        if (x.id === tId) {
+          x.fait = toggleTache.checked;
+          x.completedAt = toggleTache.checked ? todayISO() : null;
+        }
+      });
+      render(); persist(); return;
+    }
+    var editNaissance = e.target.closest('[data-action="edit-enfant-naissance"]');
+    if (editNaissance) {
+      var enId = editNaissance.getAttribute("data-id");
+      state.enfants.forEach(function (en) { if (en.id === enId) en.naissance = editNaissance.value; });
+      render(); persist(); return;
+    }
+    var editPlafond = e.target.closest('[data-action="edit-plafond"]');
+    if (editPlafond) {
+      var cat = editPlafond.getAttribute("data-cat");
+      var val = parseFloat(editPlafond.value);
+      if (editPlafond.value === "" || isNaN(val)) delete state.budgetPlafonds[cat];
+      else state.budgetPlafonds[cat] = val;
+      render(); persist(); return;
+    }
+    var editPhoto = e.target.closest('[data-action="edit-enfant-photo"]');
+    if (editPhoto) {
+      var file = editPhoto.files && editPhoto.files[0];
+      if (!file) return;
+      var enIdPhoto = editPhoto.getAttribute("data-id");
+      resizeImageFile(file).then(function (dataUrl) {
+        state.enfants.forEach(function (en) { if (en.id === enIdPhoto) en.photo = dataUrl; });
+        render(); persist();
+      }).catch(function () {});
+      return;
+    }
+  });
+
+  document.addEventListener("focusout", function (e) {
+    var ta = e.target.closest('[data-action="edit-repas"]');
+    if (ta) {
+      var date = ta.getAttribute("data-date");
+      var slot = ta.getAttribute("data-slot");
+      if (!state.repas[date]) state.repas[date] = {};
+      var val = ta.value;
+      if (state.repas[date][slot] !== val) {
+        state.repas[date][slot] = val;
+        persist();
+      }
+    }
+    var enNotes = e.target.closest('[data-action="edit-enfant-notes"]');
+    if (enNotes) {
+      var enId2 = enNotes.getAttribute("data-id");
+      var val2 = enNotes.value;
+      var changed = false;
+      state.enfants.forEach(function (en) { if (en.id === enId2 && en.notes !== val2) { en.notes = val2; changed = true; } });
+      if (changed) persist();
+    }
+  });
+
+  document.addEventListener("submit", function (e) {
+    var addRdv = e.target.closest('[data-action="add-rdv"]');
+    if (addRdv) {
+      e.preventDefault();
+      var fd = new FormData(addRdv);
+      var newRdv = { id: newId(), titre: fd.get("titre").trim(), date: fd.get("date"), heure: fd.get("heure") || "", lieu: (fd.get("lieu") || "").trim(), enfant: fd.get("enfant") || "", calendarEventId: null };
+      state.rdvs.push(newRdv);
+      render(); persist();
+      createCalendarEvent(newRdv).then(function (eventId) {
+        if (eventId) { newRdv.calendarEventId = eventId; persist(); }
+      });
+      return;
+    }
+    var addCourse = e.target.closest('[data-action="add-course"]');
+    if (addCourse) {
+      e.preventDefault();
+      var fd2 = new FormData(addCourse);
+      addCourseItem(fd2.get("texte"), fd2.get("categorie"), fd2.get("assignee"));
+      render(); persist(); return;
+    }
+    var addTache = e.target.closest('[data-action="add-tache"]');
+    if (addTache) {
+      e.preventDefault();
+      var fd3 = new FormData(addTache);
+      var txt3 = fd3.get("texte").trim();
+      if (txt3) state.taches.push({ id: newId(), texte: txt3, fait: false, recurrente: !!fd3.get("recurrente"), assignee: fd3.get("assignee") || "" });
+      render(); persist(); return;
+    }
+    var addNote = e.target.closest('[data-action="add-note"]');
+    if (addNote) {
+      e.preventDefault();
+      var fd4 = new FormData(addNote);
+      var txt4 = fd4.get("texte").trim();
+      if (txt4) state.notes.push({ id: newId(), texte: txt4 });
+      render(); persist(); return;
+    }
+    var addDepense = e.target.closest('[data-action="add-depense"]');
+    if (addDepense) {
+      e.preventDefault();
+      var fd5 = new FormData(addDepense);
+      var libelle = fd5.get("libelle").trim();
+      var montant = parseFloat(fd5.get("montant"));
+      if (libelle && !isNaN(montant)) {
+        state.depenses.push({ id: newId(), libelle: libelle, montant: montant, categorie: fd5.get("categorie"), date: fd5.get("date") || todayISO() });
+      }
+      render(); persist(); return;
+    }
+    var addEnfant = e.target.closest('[data-action="add-enfant"]');
+    if (addEnfant) {
+      e.preventDefault();
+      var fd6 = new FormData(addEnfant);
+      var prenom = fd6.get("prenom").trim();
+      if (prenom) state.enfants.push({ id: newId(), prenom: prenom, naissance: fd6.get("naissance") || "", notes: "", photo: "" });
+      render(); persist(); return;
+    }
+    var addContact = e.target.closest('[data-action="add-contact"]');
+    if (addContact) {
+      e.preventDefault();
+      var fd7 = new FormData(addContact);
+      var nom = fd7.get("nom").trim();
+      if (nom) state.contacts.push({ id: newId(), nom: nom, telephone: (fd7.get("telephone") || "").trim(), note: (fd7.get("note") || "").trim() });
+      render(); persist(); return;
+    }
+  });
+
+  render();
+
+  function fetchWeather() {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      var lat = pos.coords.latitude, lon = pos.coords.longitude;
+      fetch("https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current_weather=true")
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data && data.current_weather) {
+            ui.weather = { temp: Math.round(data.current_weather.temperature), code: data.current_weather.weathercode };
+            render();
+          }
+        })
+        .catch(function () {});
+    }, function () {}, { timeout: 8000 });
+  }
+  fetchWeather();
+})();
+</script>
+</body>
+</html>
