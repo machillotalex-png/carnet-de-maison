@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carnet de maison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EEF1EC;
+    --surface: #FFFFFF;
+    --surface-2: #F5F6F1;
+    --ink: #22303B;
+    --ink-soft: #64747A;
+    --accent: #B9812C;
+    --accent-ink: #6B4C17;
+    --accent-2: #3B6E8F;
+    --line: #DBDFD5;
+    --danger: #A8452F;
+    --radius: 10px;
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'Work Sans', system-ui, -apple-system, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #191E23;
+      --surface: #232A31;
+      --surface-2: #1F252B;
+      --ink: #EAEDE8;
+      --ink-soft: #9AA7A9;
+      --accent: #D9A24E;
+      --accent-ink: #F3D9A6;
+      --accent-2: #7FB0CE;
+      --line: #354049;
+      --danger: #DC8A76;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #191E23;
+    --surface: #232A31;
+    --surface-2: #1F252B;
+    --ink: #EAEDE8;
+    --ink-soft: #9AA7A9;
+    --accent: #D9A24E;
+    --accent-ink: #F3D9A6;
+    --accent-2: #7FB0CE;
+    --line: #354049;
+    --danger: #DC8A76;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 28px 18px 60px; }
+  header.top { margin-bottom: 22px; }
+  header.top .eyebrow { color: var(--ink-soft); font-size: 0.92rem; text-transform: capitalize; }
+  header.top h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.7rem, 5vw, 2.3rem);
+    margin: 2px 0 4px;
+    letter-spacing: -0.01em;
+  }
+  .today-strip {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: 14px;
+  }
+  .pill {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 100px; padding: 6px 14px; font-size: 0.85rem; color: var(--ink-soft);
+  }
+  .pill strong { color: var(--ink); font-weight: 600; }
+  .auth-area {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+    margin-top: 10px; font-size: 0.85rem;
+  }
+  .auth-status { color: var(--ink-soft); }
+  .auth-btn {
+    background: var(--accent-2); color: #fff; border: none; border-radius: 100px;
+    padding: 6px 14px; font-size: 0.83rem; font-weight: 500; cursor: pointer;
+  }
+  .auth-btn.ghost {
+    background: none; border: 1px solid var(--line); color: var(--ink-soft);
+  }
+  nav.tabs {
+    display: flex; gap: 4px; overflow-x: auto; margin-top: 26px;
+    border-bottom: 1px solid var(--line);
+  }
+  nav.tabs button {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 500;
+    background: none; border: none; cursor: pointer;
+    color: var(--ink-soft);
+    padding: 10px 16px 12px;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  nav.tabs button.active {
+    color: var(--ink);
+    border-bottom-color: var(--accent);
+  }
+  main.panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    padding: 22px 20px 26px;
+  }
+  h2.section-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin: 0 0 14px;
+  }
+  form.add-form {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 18px;
+    border-bottom: 1px dashed var(--line);
+  }
+  form.add-form input[type="text"],
+  form.add-form input[type="date"],
+  form.add-form input[type="time"],
+  form.add-form select {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: 9px 11px;
+    border-radius: 7px;
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+    color: var(--ink);
+  }
+  form.add-form input[type="text"] { flex: 1 1 180px; }
+  form.add-form .btn-add {
+    background: var(--accent); color: #fff; border: none;
+    padding: 9px 16px; border-radius: 7px; font-weight: 600; font-size: 0.95rem;
+    cursor: pointer;
+  }
+  form.add-form .btn-add:hover { filter: brightness(0.95); }
+  ul.item-list { list-style: none; margin: 0; padding: 0; }
+  ul.item-list li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  ul.item-list li:last-child { border-bottom: none; }
+  .item-main { flex: 1; min-width: 0; }
+  .item-title { font-weight: 500; }
+  .item-meta { color: var(--ink-soft); font-size: 0.85rem; margin-top: 2px; }
+  .item-past .item-title, .item-past .item-meta { color: var(--ink-soft); }
+  .item-done .item-title { text-decoration: line-through; color: var(--ink-soft); }
+  button.icon-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--ink-soft); font-size: 1.1rem; line-height: 1;
+    padding: 4px 6px; border-radius: 6px;
+  }
+  button.icon-btn:hover { color: var(--danger); background: var(--surface-2); }
+  input[type="checkbox"] {
+    width: 19px; height: 19px; margin-top: 1px; accent-color: var(--accent-2);
+    flex-shrink: 0;
+  }
+  .empty-state { color: var(--ink-soft); font-size: 0.95rem; padding: 10px 0; }
+  .group-label {
+    font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--accent-ink); font-weight: 600; margin: 18px 0 6px;
+  }
+  .group-label:first-child { margin-top: 0; }
+  .week-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .week-nav .label { font-weight: 600; }
+  .week-nav button {
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 7px;
+    padding: 6px 12px; cursor: pointer; color: var(--ink); font-size: 0.95rem;
+  }
+  .week-grid { display: flex; flex-direction: column; gap: 10px; }
+  .day-row {
+    display: grid; grid-template-columns: 90px 1fr 1fr; gap: 10px;
+    align-items: start;
+  }
+  .day-row .day-label { font-weight: 600; padding-top: 9px; font-size: 0.92rem; }
+  .day-row .day-label .date-sub { display: block; font-weight: 400; color: var(--ink-soft); font-size: 0.78rem; }
+  .day-row textarea {
+    width: 100%; resize: vertical; min-height: 40px;
+    font-family: var(--font-body); font-size: 0.9rem;
+    padding: 8px 10px; border-radius: 7px; border: 1px solid var(--line);
+    background: var(--surface-2); color: var(--ink);
+  }
+  .meal-label { font-size: 0.72rem; color: var(--ink-soft); margin-bottom: 3px; display: block; }
+  .today-marker .day-label { color: var(--accent-ink); }
+  .clear-btn-row { margin-top: 16px; text-align: right; }
+  .clear-btn-row button {
+    background: none; border: 1px solid var(--line); color: var(--ink-soft);
+    padding: 7px 13px; border-radius: 7px; cursor: pointer; font-size: 0.85rem;
+  }
+  .clear-btn-row button:hover { color: var(--danger); border-color: var(--danger); }
+  .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .cal-header .label { font-weight: 600; text-transform: capitalize; }
+  .cal-header button {
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 7px;
+    padding: 6px 12px; cursor: pointer; color: var(--ink); font-size: 0.95rem;
+  }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 6px; }
+  .cal-dow { text-align: center; font-size: 0.7rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.03em; padding-bottom: 4px; }
+  .cal-day {
+    position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+    border-radius: 7px; cursor: pointer; font-size: 0.86rem; background: var(--surface-2);
+    border: 1px solid transparent;
+  }
+  .cal-day.cal-outside { color: var(--ink-soft); opacity: 0.4; }
+  .cal-day.cal-today { border-color: var(--accent-2); font-weight: 600; }
+  .cal-day.cal-selected { background: var(--accent); color: #fff; }
+  .cal-day.has-rdv::after {
+    content: ""; position: absolute; bottom: 5px; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--accent-2);
+  }
+  .cal-day.cal-selected.has-rdv::after { background: #fff; }
+  .cal-filter-note {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 16px 0 12px; font-size: 0.88rem; color: var(--ink-soft);
+  }
+  .cal-filter-note button {
+    background: none; border: none; color: var(--accent-2); cursor: pointer;
+    font-size: 0.85rem; text-decoration: underline; padding: 0;
+  }
+  @media (max-width: 480px) {
+    .day-row { grid-template-columns: 1fr; }
+    .day-row .day-label { padding-top: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script id="state-data" type="application/json">{"rdvs":[],"repas":{"2026-09-14":{"midi":""}},"courses":[],"taches":[]}</script>
+<script>
+(function () {
+  "use strict";
+
+  var HEAD_HTML = document.head.outerHTML;
+  var SCRIPT_EL_HTML = document.currentScript.outerHTML;
+
+  var DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+  var CATEGORIES = ["Frais & crémerie", "Fruits & légumes", "Épicerie", "Maison & hygiène", "Autre"];
+
+  // --- Configuration Google (à remplir après création des identifiants dans Google Cloud Console) ---
+  var GOOGLE_CLIENT_ID = "REMPLACE_PAR_TON_CLIENT_ID.apps.googleusercontent.com";
+  var GOOGLE_API_KEY = "REMPLACE_PAR_TA_CLE_API";
+  var DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
+  var DRIVE_FILE_NAME = "carnet-maison-data.json";
+
+  var google_ = { tokenClient: null, accessToken: null, pickerLoaded: false };
+  var ui = {
+    tab: "rdv", weekOffset: 0, calMonthOffset: 0, selectedDate: null,
+    googleAvailable: false, signedIn: false, driveFileId: null, driveStatus: ""
+  };
+  try { ui.driveFileId = localStorage.getItem("carnet-maison-drive-file-id") || null; } catch (e) {}
+
+  var state = JSON.parse(document.getElementById("state-data").textContent);
+  if (!state.rdvs) state.rdvs = [];
+  if (!state.repas) state.repas = {};
+  if (!state.courses) state.courses = [];
+  if (!state.taches) state.taches = [];
+
+  function pad(n) { return n < 10 ? "0" + n : "" + n; }
+  function isoDate(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function todayISO() { return isoDate(new Date()); }
+  function newId() { return "id" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function escapeHtml(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function mondayOf(date) {
+    var d = new Date(date);
+    var day = (d.getDay() + 6) % 7;
+    d.setDate(d.getDate() - day);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+  function formatHuman(iso) {
+    var d = new Date(iso + "T00:00:00");
+    return d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+  }
+  function formatShort(iso) {
+    var d = new Date(iso + "T00:00:00");
+    return d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+  }
+  function buildMonthGrid(monthDate) {
+    var first = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+    var last = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+    var gridStart = mondayOf(first);
+    var gridEnd = mondayOf(last);
+    gridEnd.setDate(gridEnd.getDate() + 6);
+    var days = [];
+    var cur = new Date(gridStart);
+    while (cur <= gridEnd) { days.push(new Date(cur)); cur.setDate(cur.getDate() + 1); }
+    return days;
+  }
+
+  // ---------- Rendering ----------
+
+  function renderTodayStrip() {
+    var t = todayISO();
+    var rdvToday = state.rdvs.filter(function (r) { return r.date === t; }).length;
+    var repasT = state.repas[t] || {};
+    var repasCount = (repasT.midi ? 1 : 0) + (repasT.soir ? 1 : 0);
+    var aAcheter = state.courses.filter(function (c) { return !c.achete; }).length;
+    var tachesRestantes = state.taches.filter(function (x) { return !x.fait; }).length;
+    return (
+      '<div class="today-strip">' +
+      '<span class="pill"><strong>' + rdvToday + '</strong> rendez-vous aujourd\u2019hui</span>' +
+      '<span class="pill"><strong>' + repasCount + '/2</strong> repas prévus aujourd\u2019hui</span>' +
+      '<span class="pill"><strong>' + aAcheter + '</strong> article' + (aAcheter > 1 ? "s" : "") + ' à acheter</span>' +
+      '<span class="pill"><strong>' + tachesRestantes + '</strong> tâche' + (tachesRestantes > 1 ? "s" : "") + ' en attente</span>' +
+      '</div>'
+    );
+  }
+
+  function renderTabs() {
+    var tabs = [["rdv", "Rendez-vous"], ["repas", "Repas"], ["courses", "Courses"], ["taches", "Tâches"]];
+    return (
+      '<nav class="tabs">' +
+      tabs.map(function (t) {
+        return '<button data-action="set-tab" data-tab="' + t[0] + '" class="' + (ui.tab === t[0] ? "active" : "") + '">' + t[1] + "</button>";
+      }).join("") +
+      "</nav>"
+    );
+  }
+
+  function renderCalendar() {
+    var base = new Date();
+    base = new Date(base.getFullYear(), base.getMonth() + ui.calMonthOffset, 1);
+    var monthLabel = base.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+    var grid = buildMonthGrid(base);
+    var t = todayISO();
+    var rdvByDate = {};
+    state.rdvs.forEach(function (r) { rdvByDate[r.date] = (rdvByDate[r.date] || 0) + 1; });
+    var dowRow = DAYS.map(function (d) { return '<div class="cal-dow">' + d.slice(0, 3) + "</div>"; }).join("");
+    var cells = grid.map(function (d) {
+      var iso = isoDate(d);
+      var outside = d.getMonth() !== base.getMonth();
+      var cls = ["cal-day"];
+      if (outside) cls.push("cal-outside");
+      if (iso === t) cls.push("cal-today");
+      if (iso === ui.selectedDate) cls.push("cal-selected");
+      if (rdvByDate[iso]) cls.push("has-rdv");
+      return '<div class="' + cls.join(" ") + '" data-action="cal-select" data-date="' + iso + '">' + d.getDate() + "</div>";
+    }).join("");
+    return (
+      '<div class="cal-header">' +
+      '<button data-action="cal-prev" aria-label="Mois précédent">‹</button>' +
+      '<span class="label">' + monthLabel + "</span>" +
+      '<button data-action="cal-next" aria-label="Mois suivant">›</button>' +
+      "</div>" +
+      '<div class="cal-grid">' + dowRow + cells + "</div>"
+    );
+  }
+
+  function renderRdv() {
+    var sorted = state.rdvs.slice().sort(function (a, b) {
+      return (a.date + (a.heure || "")) < (b.date + (b.heure || "")) ? -1 : 1;
+    });
+    var t = todayISO();
+    var filterActive = !!ui.selectedDate;
+    var visible = filterActive ? sorted.filter(function (r) { return r.date === ui.selectedDate; }) : sorted;
+    var items = visible.length
+      ? visible.map(function (r) {
+          var isPast = r.date < t;
+          return (
+            '<li class="' + (isPast ? "item-past" : "") + '">' +
+            '<div class="item-main">' +
+            '<div class="item-title">' + escapeHtml(r.titre) + "</div>" +
+            '<div class="item-meta">' + formatShort(r.date) + (r.heure ? " · " + r.heure : "") + (r.lieu ? " · " + escapeHtml(r.lieu) : "") + "</div>" +
+            "</div>" +
+            '<button class="icon-btn" data-action="del-rdv" data-id="' + r.id + '" aria-label="Supprimer">×</button>' +
+            "</li>"
+          );
+        }).join("")
+      : '<li class="empty-state">' + (filterActive ? "Aucun rendez-vous ce jour-là." : "Aucun rendez-vous pour l\u2019instant. Ajoutez-en un ci-dessus.") + "</li>";
+
+    var filterNote = filterActive
+      ? '<div class="cal-filter-note"><span>Rendez-vous du ' + formatHuman(ui.selectedDate) + '</span><button data-action="cal-clear">Voir tous les rendez-vous</button></div>'
+      : "";
+
+    return (
+      '<h2 class="section-title">Rendez-vous</h2>' +
+      renderCalendar() +
+      filterNote +
+      '<form class="add-form" data-action="add-rdv">' +
+      '<input type="text" name="titre" placeholder="Rendez-vous (ex. pédiatre)" required>' +
+      '<input type="date" name="date" required value="' + t + '">' +
+      '<input type="time" name="heure">' +
+      '<input type="text" name="lieu" placeholder="Lieu (optionnel)" style="flex:1 1 140px">' +
+      '<button type="submit" class="btn-add">Ajouter</button>' +
+      "</form>" +
+      '<ul class="item-list">' + items + "</ul>"
+    );
+  }
+
+  function renderRepas() {
+    var base = mondayOf(new Date());
+    base.setDate(base.getDate() + ui.weekOffset * 7);
+    var t = todayISO();
+    var end = new Date(base);
+    end.setDate(end.getDate() + 6);
+    var label = base.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) + " – " + end.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+
+    var rows = "";
+    for (var i = 0; i < 7; i++) {
+      var d = new Date(base);
+      d.setDate(d.getDate() + i);
+      var iso = isoDate(d);
+      var entry = state.repas[iso] || {};
+      var isToday = iso === t;
+      rows +=
+        '<div class="day-row' + (isToday ? " today-marker" : "") + '">' +
+        '<div class="day-label">' + DAYS[i] + '<span class="date-sub">' + formatShort(iso) + "</span></div>" +
+        "<div>" +
+        '<span class="meal-label">Midi</span>' +
+        '<textarea data-action="edit-repas" data-date="' + iso + '" data-slot="midi" placeholder="—">' + escapeHtml(entry.midi || "") + "</textarea>" +
+        "</div>" +
+        "<div>" +
+        '<span class="meal-label">Soir</span>' +
+        '<textarea data-action="edit-repas" data-date="' + iso + '" data-slot="soir" placeholder="—">' + escapeHtml(entry.soir || "") + "</textarea>" +
+        "</div>" +
+        "</div>";
+    }
+
+    return (
+      '<h2 class="section-title">Repas de la semaine</h2>' +
+      '<div class="week-nav">' +
+      '<button data-action="week-prev">← Semaine préc.</button>' +
+      '<span class="label">' + label + "</span>" +
+      '<button data-action="week-next">Semaine suiv. →</button>' +
+      "</div>" +
+      '<div class="week-grid">' + rows + "</div>"
+    );
+  }
+
+  function renderCourses() {
+    var groups = {};
+    CATEGORIES.forEach(function (c) { groups[c] = []; });
+    state.courses.forEach(function (c) {
+      if (!groups[c.categorie]) groups[c.categorie] = [];
+      groups[c.categorie].push(c);
+    });
+
+    var hasAny = state.courses.length > 0;
+    var body = "";
+    if (!hasAny) {
+      body = '<div class="empty-state">Liste vide. Ajoutez votre premier article ci-dessus.</div>';
+    } else {
+      CATEGORIES.forEach(function (cat) {
+        var list = groups[cat] || [];
+        if (!list.length) return;
+        list.sort(function (a, b) { return (a.achete === b.achete) ? 0 : a.achete ? 1 : -1; });
+        body +=
+          '<div class="group-label">' + escapeHtml(cat) + "</div>" +
+          '<ul class="item-list">' +
+          list.map(function (c) {
+            return (
+              '<li class="' + (c.achete ? "item-done" : "") + '">' +
+              '<input type="checkbox" data-action="toggle-course" data-id="' + c.id + '" ' + (c.achete ? "checked" : "") + ">" +
+              '<div class="item-main"><div class="item-title">' + escapeHtml(c.texte) + "</div></div>" +
+              '<button class="icon-btn" data-action="del-course" data-id="' + c.id + '" aria-label="Supprimer">×</button>' +
+              "</li>"
+            );
+          }).join("") +
+          "</ul>";
+      });
+    }
+
+    var hasChecked = state.courses.some(function (c) { return c.achete; });
+
+    return (
+      '<h2 class="section-title">Liste de courses</h2>' +
+      '<form class="add-form" data-action="add-course">' +
+      '<input type="text" name="texte" placeholder="Article à ajouter" required>' +
+      '<select name="categorie">' +
+      CATEGORIES.map(function (c) { return '<option value="' + escapeHtml(c) + '">' + escapeHtml(c) + "</option>"; }).join("") +
+      "</select>" +
+      '<button type="submit" class="btn-add">Ajouter</button>' +
+      "</form>" +
+      body +
+      (hasChecked ? '<div class="clear-btn-row"><button data-action="clear-bought">Vider les articles achetés</button></div>' : "")
+    );
+  }
+
+  function renderTaches() {
+    var list = state.taches.slice().sort(function (a, b) { return (a.fait === b.fait) ? 0 : a.fait ? 1 : -1; });
+    var items = list.length
+      ? list.map(function (x) {
+          return (
+            '<li class="' + (x.fait ? "item-done" : "") + '">' +
+            '<input type="checkbox" data-action="toggle-tache" data-id="' + x.id + '" ' + (x.fait ? "checked" : "") + ">" +
+            '<div class="item-main"><div class="item-title">' + escapeHtml(x.texte) + "</div></div>" +
+            '<button class="icon-btn" data-action="del-tache" data-id="' + x.id + '" aria-label="Supprimer">×</button>' +
+            "</li>"
+          );
+        }).join("")
+      : '<li class="empty-state">Rien en attente. Ajoutez une tâche ci-dessus.</li>';
+
+    return (
+      '<h2 class="section-title">Tâches</h2>' +
+      '<form class="add-form" data-action="add-tache">' +
+      '<input type="text" name="texte" placeholder="Ex. arroser les plantes, appeler le plombier…" required style="flex:1 1 260px">' +
+      '<button type="submit" class="btn-add">Ajouter</button>' +
+      "</form>" +
+      '<ul class="item-list">' + items + "</ul>"
+    );
+  }
+
+  function renderAuthArea() {
+    if (!ui.googleAvailable) return "";
+    if (!ui.signedIn) {
+      return '<div class="auth-area"><button class="auth-btn" data-action="google-signin">Se connecter avec Google</button></div>';
+    }
+    if (!ui.driveFileId) {
+      return (
+        '<div class="auth-area">' +
+        '<span class="auth-status">Connecté(e) — pas encore de carnet partagé</span>' +
+        '<button class="auth-btn" data-action="drive-create">Créer un carnet partagé</button>' +
+        '<button class="auth-btn ghost" data-action="drive-choose">Utiliser un carnet déjà partagé</button>' +
+        "</div>"
+      );
+    }
+    return (
+      '<div class="auth-area">' +
+      '<span class="auth-status">' + (ui.driveStatus || "Synchronisé avec Google Drive") + "</span>" +
+      '<button class="auth-btn ghost" data-action="drive-share">Partager ce carnet</button>' +
+      '<button class="auth-btn ghost" data-action="google-signout">Se déconnecter</button>' +
+      "</div>"
+    );
+  }
+
+  function renderBodyContent(s) {
+    state = s;
+    var today = new Date();
+    var dateLabel = today.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+    var panel = ui.tab === "rdv" ? renderRdv() : ui.tab === "repas" ? renderRepas() : ui.tab === "courses" ? renderCourses() : renderTaches();
+    return (
+      '<div class="wrap" id="app">' +
+      '<header class="top">' +
+      '<div class="eyebrow">Carnet de maison</div>' +
+      "<h1>" + dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1) + "</h1>" +
+      renderTodayStrip() +
+      renderAuthArea() +
+      "</header>" +
+      renderTabs() +
+      '<main class="panel">' + panel + "</main>" +
+      "</div>"
+    );
+  }
+
+  function render() {
+    document.getElementById("app").outerHTML = renderBodyContent(state);
+  }
+
+  // ---------- Persistence ----------
+
+  var artifactApi = null;
+  if (window.claude && typeof window.claude.use === "function") {
+    window.claude.use("artifact").then(function (a) { artifactApi = a; }).catch(function () {});
+  }
+
+  function buildDocument(s) {
+    var stateScript = '<script id="state-data" type="application/json">' + JSON.stringify(s) + '<' + "/script>";
+    return (
+      "<!DOCTYPE html>\n<html lang=\"fr\">\n" +
+      HEAD_HTML + "\n" +
+      "<body>" +
+      renderBodyContent(s) +
+      stateScript +
+      SCRIPT_EL_HTML +
+      "</body>\n</html>"
+    );
+  }
+
+  function persist() {
+    try { localStorage.setItem("carnet-maison-state", JSON.stringify(state)); } catch (e) {}
+    if (artifactApi) {
+      artifactApi.publish(buildDocument(state)).catch(function () {});
+    }
+    scheduleDriveSave();
+  }
+
+  (function loadLocalFallbackIfEmpty() {
+    var empty = !state.rdvs.length && !state.courses.length && !state.taches.length && Object.keys(state.repas).length === 0;
+    if (!empty) return;
+    try {
+      var saved = localStorage.getItem("carnet-maison-state");
+      if (saved) state = JSON.parse(saved);
+    } catch (e) {}
+  })();
+
+  // ---------- Google Sign-In + Google Drive sync ----------
+  // Nécessite d'avoir renseigné GOOGLE_CLIENT_ID / GOOGLE_API_KEY ci-dessus,
+  // et de tourner sur un domaine autorisé (ne fonctionne pas depuis le lien claude.ai,
+  // bloqué volontairement par la politique de sécurité des pages publiées).
+
+  function loadScriptOnce(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = src; s.async = true;
+      s.onload = function () { resolve(); };
+      s.onerror = function () { reject(new Error("blocked: " + src)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function driveHeaders() {
+    return { Authorization: "Bearer " + google_.accessToken };
+  }
+
+  function driveFetch(url, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({}, opts.headers || {}, driveHeaders());
+    return fetch(url, opts).then(function (r) {
+      if (!r.ok) return r.text().then(function (t) { throw new Error("Drive API " + r.status + ": " + t); });
+      return r;
+    });
+  }
+
+  function loadFromDrive(fileId, silent) {
+    return driveFetch("https://www.googleapis.com/drive/v3/files/" + fileId + "?alt=media")
+      .then(function (r) { return r.json(); })
+      .then(function (remote) {
+        var same = JSON.stringify(remote) === JSON.stringify(state);
+        if (!same) {
+          state = remote;
+          if (!state.rdvs) state.rdvs = [];
+          if (!state.repas) state.repas = {};
+          if (!state.courses) state.courses = [];
+          if (!state.taches) state.taches = [];
+          try { localStorage.setItem("carnet-maison-state", JSON.stringify(state)); } catch (e) {}
+          render();
+        }
+        ui.driveStatus = "Synchronisé avec Google Drive";
+        if (!silent) render();
+      })
+      .catch(function () {
+        ui.driveStatus = "Impossible de récupérer les dernières données";
+        if (!silent) render();
+      });
+  }
+
+  var driveSaveTimer = null;
+  function scheduleDriveSave() {
+    if (!ui.driveFileId || !google_.accessToken) return;
+    if (driveSaveTimer) clearTimeout(driveSaveTimer);
+    driveSaveTimer = setTimeout(function () {
+      driveFetch("https://www.googleapis.com/upload/drive/v3/files/" + ui.driveFileId + "?uploadType=media", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(state)
+      }).catch(function () {});
+    }, 1200);
+  }
+
+  function createDriveFile() {
+    var boundary = "carnet_maison_boundary";
+    var metadata = { name: DRIVE_FILE_NAME, mimeType: "application/json" };
+    var body =
+      "--" + boundary + "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" + JSON.stringify(metadata) + "\r\n" +
+      "--" + boundary + "\r\nContent-Type: application/json\r\n\r\n" + JSON.stringify(state) + "\r\n" +
+      "--" + boundary + "--";
+    return driveFetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart", {
+      method: "POST",
+      headers: { "Content-Type": 'multipart/related; boundary="' + boundary + '"' },
+      body: body
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (file) {
+        ui.driveFileId = file.id;
+        try { localStorage.setItem("carnet-maison-drive-file-id", file.id); } catch (e) {}
+        ui.driveStatus = "Carnet créé — pense à le partager avec Laura";
+        render();
+      });
+  }
+
+  function openSharePage() {
+    if (!ui.driveFileId) return;
+    window.open("https://drive.google.com/file/d/" + ui.driveFileId + "/view", "_blank");
+  }
+
+  function ensurePicker() {
+    if (google_.pickerLoaded) return Promise.resolve();
+    return new Promise(function (resolve) {
+      gapi.load("picker", { callback: function () { google_.pickerLoaded = true; resolve(); } });
+    });
+  }
+
+  function openPicker() {
+    ensurePicker().then(function () {
+      var view = new google.picker.DocsView(google.picker.ViewId.DOCS).setMimeTypes("application/json");
+      var picker = new google.picker.PickerBuilder()
+        .setOAuthToken(google_.accessToken)
+        .setDeveloperKey(GOOGLE_API_KEY)
+        .addView(view)
+        .setCallback(function (data) {
+          if (data.action === google.picker.Action.PICKED) {
+            var fileId = data.docs[0].id;
+            ui.driveFileId = fileId;
+            try { localStorage.setItem("carnet-maison-drive-file-id", fileId); } catch (e) {}
+            loadFromDrive(fileId);
+          }
+        })
+        .build();
+      picker.setVisible(true);
+    });
+  }
+
+  function onTokenResponse(resp) {
+    if (resp.error) { ui.driveStatus = "Connexion refusée"; render(); return; }
+    google_.accessToken = resp.access_token;
+    ui.signedIn = true;
+    if (ui.driveFileId) loadFromDrive(ui.driveFileId);
+    render();
+  }
+
+  function initGoogleAuth() {
+    if (GOOGLE_CLIENT_ID.indexOf("REMPLACE_PAR") === 0) return; // pas encore configuré
+    try {
+      google_.tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: DRIVE_SCOPE,
+        callback: onTokenResponse
+      });
+      ui.googleAvailable = true;
+      render();
+      setInterval(function () {
+        if (document.visibilityState === "visible" && ui.driveFileId && google_.accessToken) {
+          loadFromDrive(ui.driveFileId, true);
+        }
+      }, 20000);
+    } catch (e) {}
+  }
+
+  Promise.all([
+    loadScriptOnce("https://accounts.google.com/gsi/client"),
+    loadScriptOnce("https://apis.google.com/js/api.js")
+  ]).then(initGoogleAuth).catch(function () { /* Google indisponible sur ce domaine (normal sur claude.ai) */ });
+
+  document.addEventListener("click", function (e) {
+    if (e.target.closest('[data-action="google-signin"]')) {
+      if (google_.tokenClient) google_.tokenClient.requestAccessToken();
+      return;
+    }
+    if (e.target.closest('[data-action="google-signout"]')) {
+      if (google_.accessToken && window.google) google.accounts.oauth2.revoke(google_.accessToken, function () {});
+      google_.accessToken = null;
+      ui.signedIn = false; ui.driveFileId = null;
+      try { localStorage.removeItem("carnet-maison-drive-file-id"); } catch (err) {}
+      render(); return;
+    }
+    if (e.target.closest('[data-action="drive-create"]')) { createDriveFile(); return; }
+    if (e.target.closest('[data-action="drive-choose"]')) { openPicker(); return; }
+    if (e.target.closest('[data-action="drive-share"]')) { openSharePage(); return; }
+  });
+
+  // ---------- Event handling ----------
+
+  document.addEventListener("click", function (e) {
+    var tabBtn = e.target.closest('[data-action="set-tab"]');
+    if (tabBtn) { ui.tab = tabBtn.getAttribute("data-tab"); render(); return; }
+
+    var delRdv = e.target.closest('[data-action="del-rdv"]');
+    if (delRdv) {
+      state.rdvs = state.rdvs.filter(function (r) { return r.id !== delRdv.getAttribute("data-id"); });
+      render(); persist(); return;
+    }
+
+    var delCourse = e.target.closest('[data-action="del-course"]');
+    if (delCourse) {
+      state.courses = state.courses.filter(function (c) { return c.id !== delCourse.getAttribute("data-id"); });
+      render(); persist(); return;
+    }
+
+    var delTache = e.target.closest('[data-action="del-tache"]');
+    if (delTache) {
+      state.taches = state.taches.filter(function (x) { return x.id !== delTache.getAttribute("data-id"); });
+      render(); persist(); return;
+    }
+
+    var clearBought = e.target.closest('[data-action="clear-bought"]');
+    if (clearBought) {
+      state.courses = state.courses.filter(function (c) { return !c.achete; });
+      render(); persist(); return;
+    }
+
+    var wkPrev = e.target.closest('[data-action="week-prev"]');
+    if (wkPrev) { ui.weekOffset -= 1; render(); return; }
+    var wkNext = e.target.closest('[data-action="week-next"]');
+    if (wkNext) { ui.weekOffset += 1; render(); return; }
+
+    var calSelect = e.target.closest('[data-action="cal-select"]');
+    if (calSelect) {
+      var d = calSelect.getAttribute("data-date");
+      ui.selectedDate = (ui.selectedDate === d) ? null : d;
+      render(); return;
+    }
+    var calPrev = e.target.closest('[data-action="cal-prev"]');
+    if (calPrev) { ui.calMonthOffset -= 1; render(); return; }
+    var calNext = e.target.closest('[data-action="cal-next"]');
+    if (calNext) { ui.calMonthOffset += 1; render(); return; }
+    var calClear = e.target.closest('[data-action="cal-clear"]');
+    if (calClear) { ui.selectedDate = null; render(); return; }
+  });
+
+  document.addEventListener("change", function (e) {
+    var toggleCourse = e.target.closest('[data-action="toggle-course"]');
+    if (toggleCourse) {
+      var cId = toggleCourse.getAttribute("data-id");
+      state.courses.forEach(function (c) { if (c.id === cId) c.achete = toggleCourse.checked; });
+      render(); persist(); return;
+    }
+    var toggleTache = e.target.closest('[data-action="toggle-tache"]');
+    if (toggleTache) {
+      var tId = toggleTache.getAttribute("data-id");
+      state.taches.forEach(function (x) { if (x.id === tId) x.fait = toggleTache.checked; });
+      render(); persist(); return;
+    }
+  });
+
+  document.addEventListener("focusout", function (e) {
+    var ta = e.target.closest('[data-action="edit-repas"]');
+    if (ta) {
+      var date = ta.getAttribute("data-date");
+      var slot = ta.getAttribute("data-slot");
+      if (!state.repas[date]) state.repas[date] = {};
+      var val = ta.value;
+      if (state.repas[date][slot] !== val) {
+        state.repas[date][slot] = val;
+        persist();
+      }
+    }
+  });
+
+  document.addEventListener("submit", function (e) {
+    var addRdv = e.target.closest('[data-action="add-rdv"]');
+    if (addRdv) {
+      e.preventDefault();
+      var fd = new FormData(addRdv);
+      state.rdvs.push({ id: newId(), titre: fd.get("titre").trim(), date: fd.get("date"), heure: fd.get("heure") || "", lieu: (fd.get("lieu") || "").trim() });
+      render(); persist(); return;
+    }
+    var addCourse = e.target.closest('[data-action="add-course"]');
+    if (addCourse) {
+      e.preventDefault();
+      var fd2 = new FormData(addCourse);
+      var txt = fd2.get("texte").trim();
+      if (txt) state.courses.push({ id: newId(), texte: txt, categorie: fd2.get("categorie"), achete: false });
+      render(); persist(); return;
+    }
+    var addTache = e.target.closest('[data-action="add-tache"]');
+    if (addTache) {
+      e.preventDefault();
+      var fd3 = new FormData(addTache);
+      var txt3 = fd3.get("texte").trim();
+      if (txt3) state.taches.push({ id: newId(), texte: txt3, fait: false });
+      render(); persist(); return;
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
